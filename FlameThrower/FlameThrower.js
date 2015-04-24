@@ -1,3 +1,10 @@
+
+/**
+ * 제작자 : 두두찡
+ * made bu Duduzzing
+ * © 두두찡. All rights reserved
+ */
+
 var ctx = com.mojang.minecraftpe.MainActivity.currentMainActivity.get();
 
 ModPE.overrideTexture("images/mob/flame.png", "http://imgur.com/TWAxOYk.png");
