@@ -1,7 +1,7 @@
 
 /**
  * 제작자 : 두두찡
- * made bu Duduzzing
+ * made by Duduzzing
  * © 두두찡. All rights reserved
  */
 
