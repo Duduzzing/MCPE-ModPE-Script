@@ -19,7 +19,7 @@ ground : []
 }
 
 
-ModPE.overrideTexture("images/mob/whale.png","http://imgur.com/Zf7XHcr.png");
+ModPE.overrideTexture("images/mob/whale.png","https://raw.githubusercontent.com/Duduzzing/MCPE-ModPE-Script/master/Whale/whale.png");
 
 ModPE.setItem(512,"spawn_egg",3,"Whale spawner");
 
