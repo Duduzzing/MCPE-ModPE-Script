@@ -10,7 +10,7 @@
  *© Duduzzing. All rights reserved
  */
 
-var rootDefault = "https://raw.githubusercontent.com/Duduzzing/MCPE-ModPE-Script/master/Too-many-creepers/skin/";
+var rootDefault = "https://raw.githubusercontent.com/Duduzzing/MCPE-ModPE-Script/master/Too%20many%20creepers/skin/";
 
 ModPE.overrideTexture("images/mob/cherry_creeper.png", rootDefault+"creepers/cherry_creeper.png");
 
@@ -556,7 +556,6 @@ body.addBox(-8, 20, 4, 8,4,8);
 var giantCreeper=Renderer.createHumanoidRenderer();
 
 giantCreeperRender(giantCreeper);
-
 
 
 
