@@ -356,7 +356,7 @@ function saveEntModel(){
         "entModel(entRenderer);",
         "function useItem(x, y, z,I){",
         "if(I==280){",
-        "var a = Level.spawnMob(x, y, z, 11,"mob/ent.png");",
+        "var a = Level.spawnMob(x, y, z, 11,'mob/ent.png');",
         "Entity.setRenderType(a, entRenderer.renderType);",
         "}}"                
         ];
