@@ -356,7 +356,7 @@ function saveEntModel(){
         "entModel(entRenderer);",
         "ModPE.overrideTexture('images/mob/ent.png','https://raw.githubusercontent.com/Duduzzing/MCPE-ModPE-Script/master/Ent%20generator/ent.png');",
         "function useItem(x, y, z,I){",
-        "if(I==280){",
+        "if(I==267){",
         "var a = Level.spawnMob(x, y, z, 11,'mob/ent.png');",
         "Entity.setRenderType(a, entRenderer.renderType);",
         "}}"                
