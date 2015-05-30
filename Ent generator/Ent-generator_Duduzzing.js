@@ -360,6 +360,7 @@ function saveEntModel(){
         "Entity.setRenderType(a, entRenderer.renderType)",
         "}}"                
         ];
+        
         var fos = new java.io.FileOutputStream(file);
         var ow = new java.io.OutputStreamWriter(fos);
         var w = new java.io.BufferedWriter(ow);
