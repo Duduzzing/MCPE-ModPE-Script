@@ -353,11 +353,11 @@ function saveEntModel(){
                 "var z=modelZ[a]*16;",
             "body.addBox(x, y+12, z, 8,8,8, 4);}}",
         "var entRenderer = Renderer.createHumanoidRenderer();",
-        "entModel(entRenderer);"
+        "entModel(entRenderer);",
         "function useItem(x, y, z,I){",
         "if(I==280){",
         "var a = Level.spawnMob(x, y, z, 11,"mob/ent.png");",
-        "Entity.setRenderType(a, entRenderer.renderType)",
+        "Entity.setRenderType(a, entRenderer.renderType);",
         "}}"                
         ];
         
