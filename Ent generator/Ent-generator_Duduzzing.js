@@ -354,6 +354,11 @@ function saveEntModel(){
             "body.addBox(x, y+12, z, 8,8,8, 4);}}",
         "var entRenderer = Renderer.createHumanoidRenderer();",
         "entModel(entRenderer);"
+        "function useItem(x, y, z,I){",
+        "if(I==280){",
+        "var a = Level.spawnMob(x, y, z, 11,"mob/ent.png");",
+        "Entity.setRenderType(a, entRenderer.renderType)",
+        "}}"                
         ];
         var fos = new java.io.FileOutputStream(file);
         var ow = new java.io.OutputStreamWriter(fos);
@@ -443,6 +448,3 @@ function attackHook(a, v){
         }
     }
 }
-
-
-
