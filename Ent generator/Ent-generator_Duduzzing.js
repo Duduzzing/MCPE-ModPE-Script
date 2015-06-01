@@ -188,7 +188,7 @@ function modTick(){
     cool.photosynthesis.push(0);
     
     tempEntArray.pop();
-    clientMessage(tempEntArray.length);
+    
   }	
 }
 
