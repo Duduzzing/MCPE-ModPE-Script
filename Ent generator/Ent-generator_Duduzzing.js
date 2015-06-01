@@ -18,6 +18,7 @@ var entSaver = 511;
 var lang = java.util.Locale.getDefault().getLanguage();
 var sdcard = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
 
+var tempEntArray = [];
 var entArray=[];
 var target = [];
 var originalHealth=[];
@@ -168,6 +169,30 @@ function entAI(){
 }
 
 
+function modTick(){
+	
+  for(var a in tempEntArray){
+	   	   
+    var ENT =Level.spawnMob(tempEntArray[a][0], tempEntArray[a][1]+1,tempEntArray[a][2],11,"mob/ent.png");
+    Entity.setHealth(ENT, health);
+    Entity.setCollisionSize(ENT,size[0],size[1],size[2])
+    Entity.setRenderType(ENT, entRenderer.renderType);
+    
+    entArray.push(ENT);
+    target.push(null);
+    originalHealth.push(health);
+    cool.attack.push(0);
+    cool.tree.push(0);
+    cool.fireBall.push(0);
+    cool.bloodSucking.push(0);
+    cool.photosynthesis.push(0);
+    
+    tempEntArray.pop();
+    clientMessage(tempEntArray.length);
+  }	
+}
+
+
 var wood = [17,162];
 var touchX, touchY, touchZ;
 var modelX = [];
@@ -199,19 +224,9 @@ function makeEntModel(x, y, z, item){
     //eval modeling    
     tempModel();
     
-    var ENT =Level.spawnMob(x, y+1,z,11,"mob/ent.png");
-    Entity.setHealth(ENT, health);
-    Entity.setCollisionSize(ENT,size[0],size[1],size[2])
-    Entity.setRenderType(ENT, entRenderer.renderType);
-    entArray.push(ENT);
-    target.push(null);
-    originalHealth.push(health);
-    cool.attack.push(0);
-    cool.tree.push(0);
-    cool.fireBall.push(0);
-    cool.bloodSucking.push(0);
-    cool.photosynthesis.push(0);
+    tempEntArray.push([x, y, z]);
 }
+
 function getTreeBlocks(x, y, z){
     var tree =[17,18,161,162];
     if(!(tree.indexOf(Level.getTile(x,y,z))+1))
@@ -248,6 +263,7 @@ function getTreeBlocks(x, y, z){
     if(tree.indexOf(Level.getTile(x,y,z+1))+1)
     getTreeBlocks(x,y,z+1);
 }
+
 function convertModelArray(){
     var smallX=Math.min.apply(null, modelX);
     var smallY=Math.min.apply(null, modelY);
