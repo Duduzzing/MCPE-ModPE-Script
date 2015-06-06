@@ -12,6 +12,7 @@ var whaleArray=[];
 var toMove = [];
 var isSpouting = [];
 
+var whaleSpawnArray= [];
 
 var spoutTime = 200;
 
@@ -34,9 +35,22 @@ Player.addItemCreativeInv(502, 1, 0);
 
 var whaleSpawner = 502;
 
+function modTick(){
+	
+for(var w in whaleSpawnArray){
+
+var wh = whaleSpawnArray[w];
+
+spawnWhale(wh[0],wh[1]+1,wh[2],wh[3], wh[4]);
+
+whaleSpawnArray.splice(w,1);
+
+}	
+}
 
 function newLevel(){
 whaleArray=[];
+whaleSpawnArray = [];
 toMove = [];
 isSpouting = [];
 
@@ -60,15 +74,14 @@ try{
 for(var a in whaleArray){
 
 var ent=whaleArray[a];
-var index=a;
 
 var x=Entity.getX(ent);
 var y=Entity.getY(ent);
 var z=Entity.getZ(ent);
 
-isInWater(x, y, z,index);
-spout(ent,index);
-move(ent, index);
+isInWater(x, y, z, a);
+spout(ent, a);
+move(ent, a);
  	
 }
 
@@ -111,14 +124,14 @@ break;
 
 
 if(inWater){
-cool.breath[index]++
+cool.breath[index]++;
 cool.ground[index]=0;
 }
 if(!inWater){
 cool.ground[index]++;
 }
 
-var breathTime = 260;
+var breathTime = 240;
 
 if(cool.breath[index]>breathTime){
 	
@@ -126,7 +139,7 @@ var health = Entity.getHealth(whaleArray[index]);
 
 Entity.remove(whaleArray[index]);	
 
-spawnWhale(x, y-1, z, health,true, index);
+spawnWhale(x, y, z, health,true, index);
 
 cool.breath[index]=0;
 
@@ -178,6 +191,14 @@ var x = Entity.getX(whale);
 var y = Entity.getY(whale);
 var z = Entity.getZ(whale);
 
+isSpouting[index] = false;
+
+for(var h=y+1;h<y+3;h++){
+if(Level.getTile(x, h, z) != 0){
+return;
+}
+}
+
 Level.setTile(x, y+1,z,8);
 
 java.lang.Thread.sleep(200);
@@ -189,7 +210,7 @@ java.lang.Thread.sleep(200);
 Level.setTile(x, y+1,z,0);
 Level.setTile(x, y+3,z,8);
 
-java.lang.Thread.sleep(200);
+java.lang.Thread.sleep(100);
 
 Level.setTile(x, y+2,z,0);
 Level.setTile(x, y+4,z,8);
@@ -213,21 +234,20 @@ java.lang.Thread.sleep(200);
 
 Level.setTile(x, y+4,z,0);
 
-java.lang.Thread.sleep(100);
+java.lang.Thread.sleep(200);
 
 Level.setTile(x+1, y+4,z,0);
 Level.setTile(x-1, y+4,z,0);
 Level.setTile(x, y+4,z+1,0);
 Level.setTile(x, y+4,z-1,0);
 
-java.lang.Thread.sleep(100);
+java.lang.Thread.sleep(200);
 
 Level.setTile(x+2, y+4,z,0);
 Level.setTile(x-2, y+4,z,0);
 Level.setTile(x, y+4,z+2,0);
 Level.setTile(x, y+4,z-2,0);
 
-isSpouting[index] = false;
 }
 
 
@@ -264,57 +284,56 @@ return;
 
 cool.motion[index]++;
 
-var du = 2;
 var cren = false;
 var ren;
 
 switch(cool.motion[index]){
 
-case du:
+case 2:
 ren = 2;
 break;
 
-case du*2:
+case 4:
 ren = 3;
 break;
 
-case du*3:
+case 6:
 ren = 4;
 break;
 
-case du*4:
+case 8:
 ren = 3;
 break;
 
-case du*5:
+case 10:
 ren = 2;
 break;
 
-case du*6:
+case 12:
 ren = 1;
 break;
 
-case du*7:
+case 14:
 ren = 5;
 break;
 
-case du*8:
+case 16:
 ren = 6;
 break;
 
-case du*9:
+case 18:
 ren = 7;
 break;
 
-case du*10:
+case 20:
 ren = 6;
 break;
 
-case du*11:
+case 22:
 ren = 5;
 break;
 
-case du*12:
+case 24:
 cool.motion[index]=0;
 cren=true;
 break;
@@ -325,8 +344,6 @@ cren=true;
 
 if(!cren) Entity.setRenderType(whale,
 eval("whale"+ren+".renderType"));
-
-
 
 
 function ran(){
@@ -412,36 +429,31 @@ setVelZ(whale, toMove[index][2] );
 
 
 function turn(ent,x, z){
-	
-var a=45;
-var b=180;
-
-if(x==0 &&z==-0.2)
-Entity.setRot(ent,b,90);
-
-if(x==0.2 && z==-0.2)
-Entity.setRot(ent,a+b,90);
-
-if(x==0.2 && z==0)
-Entity.setRot(ent,a*2+b,90);
-
-if(x==0.2 && z==0.2)
-Entity.setRot(ent,a*3+b,90);
 
 if(x==0 && z==0.2)
-Entity.setRot(ent,a*4+b,90);
+Entity.setRot(ent,0,90);
 
 if(x==-0.2 && z==0.2)
-Entity.setRot(ent,a*5+b,90);
+Entity.setRot(ent,45,90);
 
 if(x==-0.2 && z==0)
-Entity.setRot(ent,a*6+b,90);
+Entity.setRot(ent,90,90);
 
 if(x==-0.2 && z==-0.2)
-Entity.setRot(ent,a*7+b,90);
+Entity.setRot(ent,135,90);
 
-if(x==0 && z==0)
-Entity.setRot(ent,b,90);
+if(x==0 &&z==-0.2)
+Entity.setRot(ent,180,90);
+
+if(x==0.2 && z==-0.2)
+Entity.setRot(ent,225,90);
+
+if(x==0.2 && z==0)
+Entity.setRot(ent,270,90);
+
+if(x==0.2 && z==0.2)
+Entity.setRot(ent,315,90);
+
 
 }
 
@@ -500,10 +512,6 @@ cool.ground.splice(index,1);
 
 
 
-function entityAddedHook(ent){
-	
-		
-}
 
 function entityRemovedHook(ent){
 
@@ -526,7 +534,8 @@ break;
 
 
 function useItem(x, y,z,I, b){
-	if(I==whaleSpawner) spawnWhale(x, y, z, 800,false);
+	if(I==whaleSpawner) 
+	  whaleSpawnArray.push([x, y, z, 800,false]);
 	
 	}
 
@@ -2741,12 +2750,6 @@ body.setRotationPoint(0, 18, 0);
 var whale7=Renderer.createHumanoidRenderer();
 
 whaleRender7(whale7);
-
-
-
-
-
-
 
 
 
