@@ -141,7 +141,7 @@ function showError(e) {
 
         scroll.addView(text);
 
-        dialog.setTitle("<Black Room> Error!");
+        dialog.setTitle("Error!");
 
         dialog.setView(scroll);
 
