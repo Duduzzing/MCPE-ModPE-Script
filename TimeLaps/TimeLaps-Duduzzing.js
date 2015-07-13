@@ -562,10 +562,7 @@ function showCircleMenu() {
 
               }
 
-              turn(
-              xLoc, yLoc, zLoc, Player.getEntity(), rad, rotY, speed
-
-              );
+              turn(xLoc, yLoc, zLoc, Player.getEntity(), rad, rotY, speed);
 
               theX = null;
               theY = null;
@@ -593,6 +590,8 @@ function showCircleMenu() {
 }
 
 function moveTo(sx, sy, sz, tx, ty, tz, watchX, watchY, watchZ, ent, speed) {
+
+  Player.setFlying(true);
 
   new java.lang.Thread(new java.lang.Runnable({ run: function() { 
 
