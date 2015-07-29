@@ -24,6 +24,8 @@ var View = android.view.View;
 
 var circleArray = []; 
 
+var stop = false;
+
 var touchMode = false;
 
 var theX = null,
@@ -122,7 +124,10 @@ function useItem(x, y, z, I, b) {
 
 function modTick() {
 
-  if (Player.getCarriedItem() == 282) count = 361;
+  if (Player.getCarriedItem() == 282)
+    stop = true;
+  else
+    stop = false;
 
 }
 
@@ -210,14 +215,14 @@ function circleLocation(x, y, z) {
   this.z = z; 
 } 
 
-function makeCircle(x, y, z, radius) { 
+function makeCircle(x, y, z, radius,speed) { 
 
   circleArray = []; 
 
-  for (var i = 0; i < 360; i++) {
+  for (var i = 0; i < 360*speed; i++) {
 
-    var xx = Math.sin(i / 180 * Math.PI);
-    var zz = Math.cos(i / 180 * Math.PI);
+    var xx = Math.sin(i / 180 * Math.PI/speed);
+    var zz = Math.cos(i / 180 * Math.PI/speed);
 
     circleArray.push(
     new circleLocation(x + radius * xx + 0.5, y, z + radius * zz + 0.5));
@@ -234,11 +239,11 @@ function turn(x, y, z, entity, radius, rotationY, speed) {
 
       try {
 
-        makeCircle(x, y, z, radius); 
-
-        count = 0; 
-
-        while (count < (circleArray.length - 1)) { 
+        makeCircle(x, y, z, radius,speed); 
+       
+        for(var count = 0; count < (circleArray.length - 1); count++) {
+        	
+        	if(stop) break;
 
           var tx = circleArray[count].x;
           var ty = rotationY;
@@ -248,10 +253,9 @@ function turn(x, y, z, entity, radius, rotationY, speed) {
 
           face(entity, x, y, z);
 
-          count++;  
-          java.lang.Thread.sleep(speed * 50);
+          java.lang.Thread.sleep(50);
 
-        } 
+        }
 
       } catch(e) {
 
@@ -607,7 +611,7 @@ function moveTo(sx, sy, sz, tx, ty, tz, watchX, watchY, watchZ, ent, speed) {
 
         for (var dis = 0; dis <= totalDis; dis++) {
 
-          if (count > 360) break;
+          if (stop) break;
 
           var x = sx + xDis * dis / totalDis;
           var y = sy + yDis * dis / totalDis;
@@ -1214,7 +1218,9 @@ function newLevel(){
 
 function leaveGame() {
 
-  circleArray = []; 
+  circleArray = [];
+  
+  stop = false; 
 
   touchMode = false;
 
@@ -1246,6 +1252,3 @@ function procCmd(cmd){
   }
 		
 }
-
-
-
