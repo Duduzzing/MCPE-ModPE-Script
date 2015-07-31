@@ -609,19 +609,19 @@ function moveTo(sx, sy, sz, tx, ty, tz, watchX, watchY, watchZ, ent, speed) {
 
         var totalDis = Math.sqrt(xDis * xDis + yDis * yDis + zDis * zDis);
 
-        for (var dis = 0; dis <= totalDis; dis++) {
+        for (var dis = 0; dis <= totalDis*speed*2; dis++) {
 
           if (stop) break;
 
-          var x = sx + xDis * dis / totalDis;
-          var y = sy + yDis * dis / totalDis;
-          var z = sz + zDis * dis / totalDis;
+          var x = sx + (xDis * dis / totalDis/speed/2);
+          var y = sy + (yDis * dis / totalDis/speed/2);
+          var z = sz + (zDis * dis / totalDis/speed/2);
 
           Entity.setPosition(ent, x + 0.5, y + 0.5, z + 0.5);
 
           face(ent, watchX, watchY, watchZ);
 
-          java.lang.Thread.sleep(speed * 50);
+          java.lang.Thread.sleep(50);
 
         }
 
