@@ -30,7 +30,7 @@ Block.defineBlock(hopper, "Hopper", [
 
 Block.setDestroyTime(hopper, 5);
 
-Item.addShapedRecipe(hopper, 1, 0, ["aaa", "aba", " a "], ["a", 265, 0, "b", chest, 0]);
+Item.addShapedRecipe(hopper, 1, 0, ["a a", "aba", " a "], ["a", 265, 0, "b", chest, 0]);
 
 var hopperArray = [];
 
