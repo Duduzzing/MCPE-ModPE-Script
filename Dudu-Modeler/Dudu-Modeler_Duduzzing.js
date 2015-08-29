@@ -55,7 +55,8 @@ var language = java.util.Locale.getDefault().getLanguage();
 var tempLang = {
 
     en: {
-
+        yes: "Yes",
+        No: "No",
         startMenu: {
             title: "New Model",
             modelNameText: "Model name",
@@ -98,17 +99,81 @@ var tempLang = {
             importBtn: "Import",
             exportBtn: "Export",
             helpBtn: "Help",
-            infoBtn: "Information"
+            infoBtn: "Information",
+            exitBtn: "Exit"
+        },
+        confirmExit:{
+            title: "Confirm exit",
+            text: "Are you sure you wanna exit?"
+        },
+        rightTopWindow : {
+            textureMapText : "Texture map (click for bigger image)"
+        },
+        rightBottomWindow : {
+            modelTreeText : "Model tree"
         }
 
-
     },
+    
     ko: {
-
-
-
+        yes: "예",
+        no: "아니요",
+        startMenu: {
+            title: "새로운 모델링",
+            modelNameText: "모델링 이름",
+            modelNameEdit: "Untitled",
+            modelBaseText: "모델링 베이스",
+            emptyModel: "빈 모델링",
+            humanoidModel: "휴머노이드 모델링",
+            textureWidthText: "텍스쳐 가로길이",
+            textureWidthEdit: "X",
+            textureHeightText: "텍스쳐 세로길이",
+            textureHeightEdit: "Y",
+            create: "제작",
+            exit: "나가기"
+        },
+        leftWindow: {
+            boxNameText: "고른 박스의 이름",
+            dimensionText: "치수",
+            dimensionEditX: "폭",
+            dimensionEditY: "두께",
+            dimensionEditZ: "길이",
+            rotationPointText: "회전점",
+            rotationPointEditX: "X",
+            rotationPointEditY: "Y",
+            rotationPointEditZ: "Z",
+            offsetText: "오프셋",
+            offsetEditX: "X",
+            offsetEditY: "Y",
+            offsetEditZ: "Z",
+            textOffsetText: "텍스쳐 오프셋",
+            textOffsetEditX: "X",
+            textOffsetEditY: "Y",
+            addBoxBtn: "박스 추가",
+            deleteBoxBtn: "박스 제거",
+            clearAllBtn: "모두 제거",
+            copyBtn: "복사",
+            pasteBtn: "붙여넣기",
+            showcaseBtn: "진열 모드",
+            editProjectBtn: "프로젝트 수정",
+            loadTexture: "스킨 불러오기",
+            importBtn: "불러오기",
+            exportBtn: "저장",
+            helpBtn: "도움말",
+            infoBtn: "정보",
+            exitBtn: "나가기"
+        },
+        confirmExit: {
+            title: "나가기 확인",
+            text: "정말로 나가시겠습니까?"
+        },
+        rightTopWindow : {
+            textureMapText : "텍스쳐 맵 (클릭하면 크게 보여요)"
+        },
+        rightBottomWindow : {
+            modelTreeText : "모델링 트리"
+        }
     }
-
 };
 
 var lang = null;
@@ -156,9 +221,9 @@ function error(e) {
                 }));
                 dialog.create();
                 dialog.show();
-            } catch (e) {
+            } catch (err) {
 
-                print(e);
+                print(err);
             }
         }
     }));
@@ -170,7 +235,7 @@ function error(e) {
 /////////////////////////////////////////////////////////////
 
 var modelTree = [];
-
+var textureSize = {x : 64, y : 32};
 
 /////////////////////////////////////////////////////////////
 
@@ -288,7 +353,8 @@ function showStartMenu() {
 
                 dialog.setPositiveButton(lang.startMenu.create, new android.content.DialogInterface.OnClickListener({
                     onClick: function () {
-
+                        
+                        showModelEditMenu();
 
                     }
                 }));
@@ -303,7 +369,7 @@ function showStartMenu() {
 
 } //startMenu func
 
-/////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////
 
 
 function showModelEditMenu() {
@@ -504,10 +570,24 @@ function showModelEditMenu() {
                 infoBtn.setText(lang.leftWindow.infoBtn);
 
                 layout.addView(infoBtn);
+                
+                var exitBtn = new Button(CTX);
+
+                exitBtn.setText(lang.leftWindow.exitBtn);
+                
+                button.setOnClickListener(new android.view.View.OnClickListener({
+                    onClick: function(view){
+                        
+                        eval("leftWindow.dismiss();rightTopWindow.dismiss();rightBottomWindow.dismiss();");
+                        
+                    }
+                }));
+
+                layout.addView(exitBtn);
 
                 leftScroll.addView(leftLayout);
 
-                leftWindow.setContentView(scroll);
+                leftWindow.setContentView(leftScroll);
 
                 leftWindow.setWidth(screenWidth / 4);
 
@@ -517,8 +597,69 @@ function showModelEditMenu() {
 
                 leftWindow.setFocusable(true);
 
-               leftWindow.showAtLocation(CTX.getWindow().getDecorView(), Gravity.RIGHT | Gravity.TOP, screenWidth / 4, 0);
+                leftWindow.showAtLocation(CTX.getWindow().getDecorView(), Gravity.RIGHT | Gravity.TOP, screenWidth / 4, 0);
+                
+                
+                var rightTopWindow = new PopupWindow(CTX);
+                
+                var rightTopLayout = new LinearLayout(CTX);
 
+                rightTopLayout.setOrientation(1);
+                
+                var textureMapText = new TextView(CTX);
+                
+                textureMapText.setText(lang.rightTopWindow.textureMapText);
+                
+                var wid = screenWidth / 5, hei = screenWidth / 10, arr=[], theLength = wid * hei;
+                
+                for(var a = 0; a < theLength; a++) arr.push(-1);
+                
+                var textureMap = new Bitmap.createBitmap(arr, wid, hei, Bitmap.Config.ARGB_8888);
+                
+                var textureMapBtn = new Button(CTX);
+               
+                textureMapBtn.setText("");
+                
+                textureMapBtn.setBackgronudDrawable(new Drawable.LayerDrawable([new Drawable.BitmapDrawable(textureMap)]));
+                
+                rightTopLayout.addView(textureMapBtn);
+               
+                rightTopWindow.setContentView(rightTopLayout);
+
+                rightTopWindow.setWidth(screenWidth / 4);
+
+                rightTopWindow.setHeight(screenHeight / 2);
+
+                rightTopWindow.setBackgroundDrawable(new Drawable.ColorDrawable(Color.TRANSPARENT));
+
+                rightTopWindow.showAtLocation(CTX.getWindow().getDecorView(), Gravity.RIGHT | Gravity.TOP, 0, 0);
+                
+                
+                var rightBottomWindow = new PopupWindow(CTX);
+                
+                var rightBottomScroll = new ScrollView(CTX);
+                
+                var rightBottomLayout = new LinearLayout(CTX);
+
+                rightBottomLayout.setOrientation(1);
+                
+                var modelTreeText = new TextView(CTX);
+                
+                modelTreeText.setText(lang.rightBottomWindow.modelTreeText);
+                
+                rightBottomLayout.addView(modelTreeText);
+                
+                rightBottomScroll.addView(rightBottomLayout);
+               
+                rightBottomWindow.setContentView(rightBottomScroll);
+
+                rightBottomWindow.setWidth(screenWidth / 4);
+
+                rightBottomWindow.setHeight(screenHeight / 2);
+
+                rightBottomWindow.setBackgroundDrawable(new Drawable.ColorDrawable(Color.TRANSPARENT));
+
+                rightBottomWindow.showAtLocation(CTX.getWindow().getDecorView(), Gravity.RIGHT | Gravity.TOP, 0, screenHeight / 2);
 
             } catch (e) {
 
@@ -528,6 +669,14 @@ function showModelEditMenu() {
     }));
 } //showModelEditMenu
 
+
+
+
+function useItem(x, y, z, i, b, s, id, bd){
+    
+    if(i == 280) showStartMenu();
+    
+}
 
 
 
