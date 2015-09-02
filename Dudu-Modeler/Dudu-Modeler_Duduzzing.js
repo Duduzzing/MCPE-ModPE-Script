@@ -1081,9 +1081,19 @@ function showModelEditMenu() {
                 var modelPartSpinner = customSpinner();
 
                 leftLayout.addView(modelPartSpinner);
-
-
-
+                
+                
+                var divider = new Button(CTX);
+                
+                var dividerParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 2);
+                
+                dividerParams.setMargins(0,2,0,2);
+                
+                divider.setLayoutParams(dividerParams);
+                
+                leftLayout.addView(divider);
+                
+                
                 var addBoxBtn = new Button(CTX);
 
                 addBoxBtn.setText(lang.leftWindow.addBoxBtn);
@@ -1510,9 +1520,39 @@ function useItem(x, y, z, I, b, s, id, bd) {
 
 }
 
+var theRenderer = Renderer.createHumanoidRenderer();
 
+function createModel(){
+	
+	function theModel(renderer){
+	
+		var Model = renderer.getModel();
+        	var head = Model.getPart('head');
+        	var body = Model.getPart('body');
+        	var rArm = Model.getPart('rightArm');
+        	var lArm = Model.getPart('leftArm');
+        	var rLeg = Model.getPart('rightLeg');
+        	var lLeg = Model.getPart('leftLeg');
+        	
+        	head.clear();
+        	body.clear();
+        	rArm.clear();
+        	lArm.clear();
+        	rLeg.clear();
+        	lLeg.clear();
+        	
+        	for(var a in modelTree){
+        		var m = modelTree[a];
+        		var modelPart = m.modelPart;
+        		
+        		eval(modelPart + ".setTextureOffset(" + m.textOffsetX + "," + m.textureOffsetY + ");" );
+        		eval(modelPart + "addBox(" + m.offsetX + "," + m.offsetY + "," + m.offsetZ +"," + m.offf + ");" );
+        	}
+		
+	}
+	
 
-
+}
 
 
 
