@@ -309,7 +309,7 @@ function isVar(str) {
     } catch (e) {
         return false;
     }
-    if ( /*/[^a-z|^0-9|^_]/gi.test(str)*/ / \W / g.test(str)) {
+    if (/\W/g.test(str)) {
         return false;
     }
     return true;
@@ -532,7 +532,7 @@ function saveProject() {
 
                 while (true) {
                     if (file.exists()) {
-                        file = java.io.File(SDCARD + "/Download/aaa/" + modelName + "_" + theCount + ".dm");
+                        file = java.io.File(SDCARD + "/Download/aaa/" + ㅔmodelName + "_" + theCount + ".dm");
                         theCount++;
                     } else {
                         break;
@@ -718,7 +718,7 @@ function showStartMenu(isEditMode) {
                         textureSize.x = textX;
                         textureSize.y = textY;
 
-                        spawnModelEntity(x, y, z);
+                        spawnModelEntity();
 
                         if (!isEditMode) showModelEditMenu();
 
@@ -884,14 +884,17 @@ function customEditText(hint, title, type, isInt, isFloat, isPositive) {
 
 
 function customSpinner() {
+	try{
 
     var spinner = new android.widget.Button(CTX);
 
-    spinner.setText(selectedBox.modelPart);
+    spinner.setText("Model part");
 
     spinner.setOnClickListener(new android.view.View.OnClickListener({
         onClick: function (view) {
+        	try{
             if (selectedBox != null) {
+                
                 var window = new PopupWindow(CTX);
 
                 var listView = new android.widget.ListView(CTX);
@@ -903,15 +906,20 @@ function customSpinner() {
                 listView.setAdapter(adapter);
 
                 var listener = new android.widget.AdapterView.OnItemClickListener({
-                    onItemClick(parent, view, position, id) {
+                    onItemClick: function(parent, view, position, id) {
+                    	try{
 
                         var text = view.getText() + "";
 
-                        selectedBox.ModelPart = text;
+                        selectedBox.modelPart = text;                        
 
-                        modelPartSpinner.setText(text);
+                        spinner.setText(text);
 
                         window.dismiss();
+                        }catch(e){
+                        	
+                        	error(e);
+                        	}
 
                     }
                 });
@@ -925,14 +933,24 @@ function customSpinner() {
                 window.setHeight(android.view.WindowManager.LayoutParams.WRAP_CONTENT);
 
                 window.setContentView(listView);
-
-                window.showAsDropdown(anchorView);
+                
+                window.showAtLocation(CTX.getWindow().getDecorView(), Gravity.CENTER, 0, 0);
+                    	 
+                    	 
             }
-        }
-    }));
+            
+            }catch(e){
+            	error(e);
+            	}
+        
+        
+        }}));
 
     return spinner;
-
+}catch(e){
+	
+error(e);	
+}
 }
 
 
@@ -1057,12 +1075,13 @@ function showModelEditMenu() {
 
                 modelPartText.setText(lang.leftWindow.modelPartText);
 
-                layout.addView(modelPartText);
+                leftLayout.addView(modelPartText);
 
 
                 var modelPartSpinner = customSpinner();
 
                 leftLayout.addView(modelPartSpinner);
+
 
 
                 var addBoxBtn = new Button(CTX);
@@ -1414,13 +1433,9 @@ function showModelEditMenu() {
 
 
 
-function spawnModelEntity(x, y, z) {
+function spawnModelEntity() {
 
-    theX = x;
-    theY = y + 1;
-    theZ = z;
-
-    modelEntity = Level.spawnMob(x, y + 1, z, 11);
+    modelEntity = Level.spawnMob(theX, theY, theZ, 11);
 
     Entity.setHealth(modelEntity, 20000);
 
@@ -1480,7 +1495,12 @@ function useItem(x, y, z, I, b, s, id, bd) {
 
     if (I == 281) spawnModelEntity(x, y, z);
 
-    if (I == modelMaker && isMakingModel == false) {
+    if (I == modelMaker && isMakingModel == false){
+    	
+    	    theX = x;
+    theY = y + 1;
+    theZ = z;
+    
 
         isMakingModel = true;
 
@@ -1489,5 +1509,11 @@ function useItem(x, y, z, I, b, s, id, bd) {
     }
 
 }
+
+
+
+
+
+
 
 
