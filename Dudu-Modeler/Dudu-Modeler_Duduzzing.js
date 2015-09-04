@@ -366,11 +366,15 @@ var textureMapLayer = [];
 var textureMapBtn;
 //텍스쳐맵
 
-var rightBottomLayout;
-//모델링 버튼들 추가되는곳
+var leftWindow;
+var rightTopWindow;
+var rightBottomWindow;
 
 var leftLayout;
 //선택된 박스에딧텍스트들 보관
+
+var rightBottomLayout;
+//모델링 버튼들 추가되는곳
 
 var cloneBox = null;
 //복사된 addBox() 객체
@@ -732,6 +736,74 @@ function loadTexture(skinPath,skinName){
 	error(e);
 	}
 }
+
+
+function showcase(){
+	
+	leftWindow.dismiss();
+	rightTopWindow.dismiss();
+        rightBottomWindow.dismiss();
+        
+        var showcaseWindow;
+
+        var btn = new Button(CTX);
+        
+        btn.setBackgroundDrawable(new Drawable.ColorDrawable(Color.TRANSPARENT));
+        
+        btn.setTextColor(Color.argb(20,255,255,255));
+        
+        btn.setText("DM");
+        
+        btn.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, 30);
+        
+        btn.setOnClickListener(new android.view.View.OnClickListener({
+                    onClick: function (view) {
+                        
+                        showcaseWindow.dismiss();
+                        
+                        showModelEditMenu();
+                        
+                        CTX.runOnUiThread(new java.lang.Runnable({
+                    run: function () {
+                        try {
+
+                            for (var a in modelTree) {
+
+                                var btn = new Button(CTX);
+
+                                btn.setText(modelTree[a].name);
+
+                                btn.setOnClickListener(new android.view.View.OnClickListener({
+                                    onClick: function (view) {
+
+                                        selectedBox = modelTree[rightBottomLayout.indexOfChild(view) - 1];
+
+                                        setLeftWindow();
+
+                                    }
+                                }));
+
+                                rightBottomLayout.addView(btn);
+                                
+                            }
+                        } catch (e) {
+                            error(e);
+                        }
+                    }
+                }));
+                        
+                    }
+                }));
+        
+        showcaseWindow = new PopupWindow(btn, screenWidth/10, screenWidth/10);
+        
+        showcaseWindow.setBackgroundDrawable(new Drawable.ColorDrawable(Color.argb(20,0,0,0)));
+        
+        showcaseWindow.showAtLocation(CTX.getWindow().getDecorView(), Gravity.RIGHT | Gravity.BOTTOM, 0, 0);
+
+}
+
+
 
 ////////////////////////////////////////////////////////////////////////
 
@@ -1131,7 +1203,7 @@ function showModelEditMenu() {
         run: function () {
             try {
 
-                var leftWindow = new PopupWindow(CTX);
+                leftWindow = new PopupWindow(CTX);
 
                 var leftScroll = new ScrollView(CTX);
                 leftLayout = new LinearLayout(CTX);
@@ -1422,6 +1494,14 @@ function showModelEditMenu() {
                 var showcaseBtn = new Button(CTX);
 
                 showcaseBtn.setText(lang.leftWindow.showcaseBtn);
+                
+                showcaseBtn.setOnClickListener(new android.view.View.OnClickListener({
+                                onClick: function (view) {
+                                	
+                                    showcase();
+
+                                }
+                }));
 
                 leftLayout.addView(showcaseBtn);
 
@@ -1683,7 +1763,9 @@ updateModel();
                                     theRenderer = Renderer.createHumanoidRenderer();
                                     theSkin = null;
 
-                                    eval("leftWindow.dismiss();rightTopWindow.dismiss();rightBottomWindow.dismiss();");
+                                   leftWindow.dismiss();
+                                   rightTopWindow.dismiss();
+                                   rightBottomWindow.dismiss();
                                 }
                             }));
                             dialog.create();
@@ -1713,7 +1795,7 @@ updateModel();
 
                 leftWindow.showAtLocation(CTX.getWindow().getDecorView(), Gravity.RIGHT | Gravity.TOP, screenWidth / 4, 0);
 
-                var rightTopWindow = new PopupWindow(CTX);
+                rightTopWindow = new PopupWindow(CTX);
 
                 var rightTopLayout = new LinearLayout(CTX);
 
@@ -1753,7 +1835,7 @@ updateModel();
                 rightTopWindow.showAtLocation(CTX.getWindow().getDecorView(), Gravity.RIGHT | Gravity.TOP, 0, 0);
 
 
-                var rightBottomWindow = new PopupWindow(CTX);
+                rightBottomWindow = new PopupWindow(CTX);
 
                 var rightBottomScroll = new ScrollView(CTX);
 
@@ -1956,7 +2038,8 @@ function FileList(context) {
 
         if (files == null) return false;
 
-        if (path != SDCARD) folderList.push(".../");
+        if (path != SDCARD) 
+        folderList.push(".../");
 
         for (var a in files) {
 
