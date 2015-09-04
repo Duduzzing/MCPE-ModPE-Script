@@ -60,6 +60,8 @@ var TextView = android.widget.TextView;
 
 var View = android.view.View;
 
+var isPro =  CTX.getPackageName().equals("net.zhuoweizhang.mcpelauncher.pro");
+
 var language = java.util.Locale.getDefault().getLanguage();
 
 var tempLang = {
@@ -699,19 +701,39 @@ function loadProject(path) {
 }
 
 function loadModelBase(modelBase){
-                            		/*
-                            		selectedBox = null;
-                            		modelTree = [];
-                            		textureMapLayer = [];
-                            		resetLeftWindow();
-                            		rightBottomLayout.removeViews(1, rightBottomLayout.getChildCount() - 1);
-                            		*/
+
         modelBase.name = modelName;
         modelBase.textureSize.x = textureSize.x;
         modelBase.textureSize.y = textureSize.y;
         modelBase.model = modelTree;
                             		
 }
+
+
+function loadTexture(skinPath,skinName){
+	try{
+	var dstPath = (isPro) ? SDCARD + "/Android/data/net.zhuoweizhang.mcpelauncher.pro/files/textures/images/skin/" : SDCARD + "/Android/data/net.zhuoweizhang.mcpelauncher.pro/files/textures/images/skin/";
+	dstPath += skinName;	
+	
+	var fr = new java.io.FileReader(skinPath);
+	var fw = new java.io.FileWriter(dstPath);
+	var read;
+
+	while((read = fr.read()) != -1) {
+	fw.write(read);
+	}
+	fr.close();
+	fw.close();
+	
+	Entity.setMobSkin(modelEntity, "skin/"+skinName);
+	
+	} catch(e){
+		
+	error(e);
+	}
+}
+
+////////////////////////////////////////////////////////////////////////
 
 
 function showStartMenu(isEditMode) {
@@ -778,6 +800,10 @@ function showStartMenu(isEditMode) {
                             if (position == 1) {
        clientMessage("휴몮이드모델!!");                     	
                             	loadModelBase(HumanoidModelBase);
+                            	
+                            	modelNameEdit.setText(modelName);
+                            	textureWidthEdit.setText(textureSize.x + "");
+                            	textureHeightEdit.setText(textureSize.y + "");
                             	
                                 /////////////////////load humanoid model////////////////////////////
                             }
@@ -1429,7 +1455,9 @@ function showModelEditMenu() {
 
                             var onFileSelected = function (path, fileName) {
 
-theSkin = path;
+theSkin = fileName;
+
+loadTexture(path,fileName);
 
 fileListWindow.dismiss();
 
@@ -1653,6 +1681,7 @@ updateModel();
 
                                     isMakingModel = false;
                                     theRenderer = Renderer.createHumanoidRenderer();
+                                    theSkin = null;
 
                                     eval("leftWindow.dismiss();rightTopWindow.dismiss();rightBottomWindow.dismiss();");
                                 }
@@ -1873,7 +1902,7 @@ function updateModel() {
     Entity.setRenderType(modelEntity, theRenderer.renderType);
     
     if(theSkin != null)
-    Entity.setMobSkin(modelEntity, theSkin);
+    Entity.setMobSkin(modelEntity, "skin/"+theSkin);
 
 
 }
