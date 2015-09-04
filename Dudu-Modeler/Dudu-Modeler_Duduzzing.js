@@ -68,6 +68,7 @@ var tempLang = {
         yes: "Yes",
         No: "No",
         copyNoti: "Box copied",
+        newLevelNoti: "<Dudu-Modeler> Type \"\/start\" to receive the item to start making model (ItemId: 550)",
         modelPart: {
             head: "head",
             body: "body",
@@ -91,12 +92,12 @@ var tempLang = {
                 title: "Confirm exit",
                 text: "Do you wanna exit?"
             },
-            loadProject:{
-            	
-            	title: "Load project",
-            	text: "Do you want to load the project?\n(Recommend you to save the project you are working on first)"
+            loadProject: {
+
+                title: "Load project",
+                text: "Do you want to load the project?\n(Recommend you to save the project you are working on first)"
             }
-            
+
         },
         startMenu: {
             title: "New Model",
@@ -160,6 +161,7 @@ var tempLang = {
         yes: "예",
         no: "아니요",
         copyNoti: "박스가 복사됬습니다",
+        newLevelNoti: "<두두-모델러> 커맨드 \"\/start\" 로 모델링을 시작할 아이템을 얻으세요 (아이템코드: 550)",
         modelPart: {
             head: "head",
             body: "body",
@@ -183,10 +185,10 @@ var tempLang = {
                 title: "나가기 확인",
                 text: "정말로 나가시겠습니까?"
             },
-            loadProject:{
-            	
-            	title: "프로젝트 불러오기",
-            	text: "정말로 선택한 프로젝트를 불러오시겠습니까?\n(먼저 만들던 프로젝트는 저장하는것을 권장합니다)"
+            loadProject: {
+
+                title: "프로젝트 불러오기",
+                text: "정말로 선택한 프로젝트를 불러오시겠습니까?\n(먼저 만들던 프로젝트는 저장하는것을 권장합니다)"
             }
 
         },
@@ -308,7 +310,6 @@ function toast(str) {
         run: function () {
             try {
                 android.widget.Toast.makeText(CTX, str, android.widget.Toast.LENGTH_LONG).show();
-
             } catch (err) {
                 error(err);
             }
@@ -320,13 +321,10 @@ function toast(str) {
 function isVar(str) {
     try {
         eval("var " + str + ";");
-
     } catch (e) {
         return false;
     }
-    if (/\W/g.test(str)) {
-        return false;
-    }
+    if (/\W/g.test(str)) return false;
     return true;
 }
 
@@ -375,7 +373,31 @@ var leftLayout;
 var cloneBox = null;
 //복사된 addBox() 객체
 
+var theRenderer = Renderer.createHumanoidRenderer();
+
 /////////////////////////////////////////////////////////////
+
+
+var HumanoidModelBase = {
+        name: "HumanoidModel",
+        textureSize:{x: 64, y: 32},
+        model:[
+                {name : "head", dimensionX : 8, dimensionY : 8, dimensionZ : 8, rotationX : 0, rotationY : 0, rotationZ : 0, offsetX : -4, offsetY : -8, offsetZ : -4, scale : 0, textOffsetX : 0, textOffsetY : 0, modelPart : "head"},
+                {name : "body", dimensionX : 8, dimensionY : 12, dimensionZ : 4, rotationX : 0, rotationY : 0, rotationZ : 0, offsetX : -4, offsetY : 0, offsetZ : -2, scale : 0, textOffsetX : 16, textOffsetY : 16, modelPart : "body"},
+                {name : "rightArm", dimensionX : 4, dimensionY : 12, dimensionZ : 4, rotationX : -5, rotationY : 2, rotationZ : 0, offsetX : -3, offsetY : -2, offsetZ : -2, scale : 0, textOffsetX: 40, textOffsetY : 16, modelPart : "rightArm"},
+                {name : "leftArm", dimensionX : 4, dimensionY : 12, dimensionZ : 4, rotationX : 5, rotationY : 2, rotationZ : 0, offsetX : -1, offsetY : -2, offsetZ : -2, scale : 0, textOffsetX : 40, textOffsetY : 16, modelPart : "leftArm"},
+                {name : "rightLeg", dimensionX : 4, dimensionY : 12, dimensionZ : 4, rotationX : -2, rotationY : 12, rotationZ : 0, offsetX : -2, offsetY : 0, offsetZ : -2, scale : 0, textOffsetX : 0, textOffsetY : 16, modelPart : "rightLeg"},
+                {name : "leftLeg", dimensionX : 4, dimensionY : 12, dimensionZ : 4, rotationX : 2, rotationY : 12, rotationZ : 0, offsetX : -2, offsetY : 0, offsetZ : -2, scale : 0, textOffsetX : 0, textOffsetY : 16, modelPart : "leftLeg"}
+        ]                	
+};
+
+
+
+////////////////////////////////////////////////////////
+
+
+
+
 
 function addBox() {
 
@@ -473,10 +495,10 @@ function deleteAllBoxes() {
         var dialog = new android.app.AlertDialog.Builder(CTX);
 
         var text = new TextView(CTX);
-        
+
         text.setTextColor(Color.RED);
-        
-        text.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,20);
+
+        text.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, 30);
 
         text.setText(lang.confirm.deleteAllBoxes.text);
 
@@ -498,6 +520,8 @@ function deleteAllBoxes() {
                 modelTree = [];
 
                 selectedBox = null;
+                
+                textureMapLayer = [];
 
                 resetLeftWindow();
 
@@ -513,7 +537,7 @@ function deleteAllBoxes() {
 
 }
 
-function pasteBox(toClone) {
+function pasteBx(toClone) {
     this.name = toClone.name;
     this.dimensionX = toClone.dimensionX;
     this.dimensionY = toClone.dimensionY;
@@ -544,14 +568,14 @@ function saveProject() {
     new java.lang.Thread(new java.lang.Runnable({
         run: function () {
             try {
-                             file = java.io.File(SDCARD + "/Duduzzing/Dudu-Modeler/"+ modelName +"/" + modelName + ".dm");
+                file = java.io.File(SDCARD + "/Duduzzing/Dudu-Modeler/" + modelName + "/" + modelName + ".dm");
 
 
                 var theCount = 1;
 
                 while (true) {
                     if (file.exists()) {
-                        file = java.io.File(SDCARD + "/Duduzzing/Dudu-Modeler/"+ modelName +"/" + modelName + "_" + theCount + ".dm");
+                        file = java.io.File(SDCARD + "/Duduzzing/Dudu-Modeler/" + modelName + "/" + modelName + "_" + theCount + ".dm");
                         theCount++;
                     } else {
                         break;
@@ -569,10 +593,10 @@ function saveProject() {
                 var fos = new java.io.FileOutputStream(file);
                 var ow = new java.io.OutputStreamWriter(fos);
                 var w = new java.io.BufferedWriter(ow);
-                
-                w.write(modelName+"\n");
-                
-                w.write(JSON.stringify(textureSize)+"\n");
+
+                w.write(modelName + "\n");
+
+                w.write(JSON.stringify(textureSize) + "\n");
 
                 w.write(JSON.stringify(modelTree));
 
@@ -594,79 +618,93 @@ function saveProject() {
 
 function loadProject(path) {
 
-new java.lang.Thread( new java.lang.Runnable({run:function(){
-	
-	 try{
-    var file = java.io.File(path);
-    
-    if(!file.exists())
-      throw new Error("No file exist in the path: "+path);
-    
-    var fis = new java.io.FileInputStream(file);
-    var isr = new java.io.InputStreamReader(fis);
-    var br = new java.io.BufferedReader(isr);
-    
-    var arr = [];
-    
-    while(true){
-      
-      var str = br.readLine();
-      if(str == null) break;
-      arr.push(str);      
-    
-    }
-    fis.close();
-    isr.close();
-    br.close();
-    
-    modelName = arr[0]+"";
-    
-    textureSize = JSON.parse(arr[1]);
-    
-    modelTree = JSON.parse(arr[2]);
-                
-    updateModel();
-
-    CTX.runOnUiThread(new java.lang.Runnable({
+    new java.lang.Thread(new java.lang.Runnable({
         run: function () {
+
             try {
-            	    
-    for(var a in modelTree){
-    
-    var btn = new Button(CTX);
+                var file = java.io.File(path);
 
-    btn.setText(modelTree[a].name);
+                if (!file.exists()) throw new Error("No file exist in the path: " + path);
 
-    btn.setOnClickListener(new android.view.View.OnClickListener({
-                            onClick: function (view) {
+                var fis = new java.io.FileInputStream(file);
+                var isr = new java.io.InputStreamReader(fis);
+                var br = new java.io.BufferedReader(isr);
 
-                                selectedBox = modelTree[rightBottomLayout.indexOfChild(view) - 1];
+                var arr = [];
 
-                                setLeftWindow();
+                while (true) {
 
+                    var str = br.readLine();
+                    if (str == null) break;
+                    arr.push(str);
+
+                }
+                fis.close();
+                isr.close();
+                br.close();
+
+                modelName = arr[0] + "";
+
+                textureSize = JSON.parse(arr[1]);
+
+                modelTree = JSON.parse(arr[2]);
+
+                updateModel();
+
+                CTX.runOnUiThread(new java.lang.Runnable({
+                    run: function () {
+                        try {
+
+                            for (var a in modelTree) {
+
+                                var btn = new Button(CTX);
+
+                                btn.setText(modelTree[a].name);
+
+                                btn.setOnClickListener(new android.view.View.OnClickListener({
+                                    onClick: function (view) {
+
+                                        selectedBox = modelTree[rightBottomLayout.indexOfChild(view) - 1];
+
+                                        setLeftWindow();
+
+                                    }
+                                }));
+
+                                rightBottomLayout.addView(btn);
+                                
                             }
-                        }));
+                        } catch (e) {
+                            error(e);
+                        }
+                    }
+                }));
 
-                        rightBottomLayout.addView(btn);
+            } catch (e) {
 
+                error(e);
 
-     }
-     }catch(e){
-     	error(e);
-     	}
-     }})); 
-            
-  } catch(e){
-    
-  error(e);
-  
-  }	
-	
-	}})).start();
+            }
+
+        }
+    })).start();
 
 }
 
-
+function loadModelBase(modelBase){
+                            		/*
+                            		selectedBox = null;
+                            		modelTree = [];
+                            		textureMapLayer = [];
+                            		resetLeftWindow();
+                            		rightBottomLayout.removeViews(1, rightBottomLayout.getChildCount() - 1);
+                            		*/
+        modelBase.name = modelName;
+        modelBase.textureSize.x = textureSize.x;
+        modelBase.textureSize.y = textureSize.y;
+        modelBase.model = modelTree;
+                            		
+}
 
 
 function showStartMenu(isEditMode) {
@@ -731,6 +769,9 @@ function showStartMenu(isEditMode) {
                         onItemSelected: function (parent, view, position) {
 
                             if (position == 1) {
+                            	
+                            	loadModelBase(HumanoidModelBase);
+                            	
                                 /////////////////////load humanoid model////////////////////////////
                             }
 
@@ -943,7 +984,7 @@ function customEditText(hint, title, type, isInt, isFloat, isPositive) {
                                 eval("selectedBox." + type + " = text;");
 
                                 btn.setText(text + "");
-                                
+
                                 updateModel();
 
                                 if (type == "name") rightBottomLayout.getChildAt(modelTree.indexOf(selectedBox) + 1).setText(text);
@@ -977,75 +1018,76 @@ function customEditText(hint, title, type, isInt, isFloat, isPositive) {
 
 
 function customSpinner() {
-	try{
+    try {
 
-    var spinner = new android.widget.Button(CTX);
+        var spinner = new android.widget.Button(CTX);
 
-    spinner.setText("Model part");
+        spinner.setText("Model part");
 
-    spinner.setOnClickListener(new android.view.View.OnClickListener({
-        onClick: function (view) {
-        	try{
-            if (selectedBox != null) {
-                
-                var window = new PopupWindow(CTX);
+        spinner.setOnClickListener(new android.view.View.OnClickListener({
+            onClick: function (view) {
+                try {
+                    if (selectedBox != null) {
 
-                var listView = new ListView(CTX);
+                        var window = new PopupWindow(CTX);
 
-                var items = [lang.modelPart.head, lang.modelPart.body, lang.modelPart.rightArm, lang.modelPart.leftArm, lang.modelPart.rightLeg, lang.modelPart.leftLeg];
+                        var listView = new ListView(CTX);
 
-                var adapter = new android.widget.ArrayAdapter(CTX, android.R.layout.simple_list_item_1, items);
+                        var items = [lang.modelPart.head, lang.modelPart.body, lang.modelPart.rightArm, lang.modelPart.leftArm, lang.modelPart.rightLeg, lang.modelPart.leftLeg];
 
-                listView.setAdapter(adapter);
+                        var adapter = new android.widget.ArrayAdapter(CTX, android.R.layout.simple_list_item_1, items);
 
-                var listener = new android.widget.AdapterView.OnItemClickListener({
-                    onItemClick: function(parent, view, position, id) {
-                    	try{
+                        listView.setAdapter(adapter);
 
-                        var text = view.getText() + "";
+                        var listener = new android.widget.AdapterView.OnItemClickListener({
+                            onItemClick: function (parent, view, position, id) {
+                                try {
 
-                        selectedBox.modelPart = text;                        
+                                    var text = view.getText() + "";
 
-                        spinner.setText(text);
-                        
-                        updateModel();
+                                    selectedBox.modelPart = text;
 
-                        window.dismiss();
-                        }catch(e){
-                        	
-                        	error(e);
-                        	}
+                                    spinner.setText(text);
+
+                                    updateModel();
+
+                                    window.dismiss();
+                                } catch (e) {
+
+                                    error(e);
+                                }
+
+                            }
+                        });
+
+                        listView.setOnItemClickListener(listener);
+
+                        window.setFocusable(true);
+
+                        window.setWidth(screenWidth / 4);
+
+                        window.setHeight(android.view.WindowManager.LayoutParams.WRAP_CONTENT);
+
+                        window.setContentView(listView);
+
+                        window.showAtLocation(CTX.getWindow().getDecorView(), Gravity.CENTER, 0, 0);
+
 
                     }
-                });
 
-                listView.setOnItemClickListener(listener);
+                } catch (e) {
+                    error(e);
+                }
 
-                window.setFocusable(true);
 
-                window.setWidth(screenWidth / 4);
-
-                window.setHeight(android.view.WindowManager.LayoutParams.WRAP_CONTENT);
-
-                window.setContentView(listView);
-                
-                window.showAtLocation(CTX.getWindow().getDecorView(), Gravity.CENTER, 0, 0);
-                    	 
-                    	 
             }
-            
-            }catch(e){
-            	error(e);
-            	}
-        
-        
-        }}));
+        }));
 
-    return spinner;
-}catch(e){
-	
-error(e);	
-}
+        return spinner;
+    } catch (e) {
+
+        error(e);
+    }
 }
 
 
@@ -1176,19 +1218,19 @@ function showModelEditMenu() {
                 var modelPartSpinner = customSpinner();
 
                 leftLayout.addView(modelPartSpinner);
-                
-                
+
+
                 var divider = new Button(CTX);
-                
+
                 var dividerParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 2);
-                
-                dividerParams.setMargins(0,10,0,10);
-                
+
+                dividerParams.setMargins(0, 10, 0, 10);
+
                 divider.setLayoutParams(dividerParams);
-                
+
                 leftLayout.addView(divider);
-                
-                
+
+
                 var addBoxBtn = new Button(CTX);
 
                 addBoxBtn.setText(lang.leftWindow.addBoxBtn);
@@ -1201,7 +1243,7 @@ function showModelEditMenu() {
                         modelTree.push(box);
 
                         selectedBox = modelTree[modelTree.length - 1];
-                        
+
                         updateModel();
 
 
@@ -1234,10 +1276,10 @@ function showModelEditMenu() {
 
                 deleteBoxBtn.setOnClickListener(new android.view.View.OnClickListener({
                     onClick: function (view) {
-                        if (selectedBox != null){
-                        	 deleteBox(modelTree.indexOf(selectedBox));
-                        	 updateModel();
-                        	 }
+                        if (selectedBox != null) {
+                            deleteBox(modelTree.indexOf(selectedBox));
+                            updateModel();
+                        }
 
                     }
                 }));
@@ -1301,7 +1343,7 @@ function showModelEditMenu() {
                             modelTree.push(newClone);
 
                             selectedBox = modelTree[modelTree.length - 1];
-                            
+
                             updateModel();
 
 
@@ -1364,7 +1406,7 @@ function showModelEditMenu() {
                     onClick: function (view) {
 
                         showStartMenu(true);
-                        //////////tod//update skinMap///////////////
+                        //////////todo//update skinMap///////////////
 
                     }
                 }));
@@ -1374,104 +1416,105 @@ function showModelEditMenu() {
                 var importBtn = new Button(CTX);
 
                 importBtn.setText(lang.leftWindow.importBtn);
-                
-               importBtn.setOnClickListener(new android.view.View.OnClickListener({
+
+                importBtn.setOnClickListener(new android.view.View.OnClickListener({
                     onClick: function (view) {
 
 
-try{
+                        try {
 
-var fileListWindow = new PopupWindow(CTX);
+                            var fileListWindow = new PopupWindow(CTX);
 
-var fileListLayout = new LinearLayout(CTX);
+                            var fileListLayout = new LinearLayout(CTX);
 
-fileListLayout.setOrientation(1);
+                            fileListLayout.setOrientation(1);
 
-var pathText = new TextView(CTX);
+                            var pathText = new TextView(CTX);
 
-fileListLayout.addView(pathText);
-
-
+                            fileListLayout.addView(pathText);
 
 
-                        
-var onPathChanged = function(path){
-
-pathText.setText(path);	
 
 
-}
 
-var onFileSelected = function(path, fileName){
-	
-        var dialog = new android.app.AlertDialog.Builder(CTX);
+                            var onPathChanged = function (path) {
 
-        var text = new TextView(CTX);
-
-        text.setText(lang.confirm.loadProject.text);
-        
-        text.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,20);
-
-        var scroll = new android.widget.ScrollView(CTX);
-
-        dialog.setView(text);
-
-        dialog.setTitle(lang.confirm.loadProject.title);
-
-        dialog.setNegativeButton(lang.no, null);
-
-        dialog.setPositiveButton(lang.yes, new android.content.DialogInterface.OnClickListener({
-            onClick: function () {
-
-                fileListWindow.dismiss();
-
-                rightBottomLayout.removeViews(1, rightBottomLayout.getChildCount() - 1);
-
-                modelTree = [];
-
-                selectedBox = null;
-
-                resetLeftWindow();
-                
-                loadProject(path+fileName);
-                
-
-            }
-        }));
-        dialog.create();
-        dialog.show();
-               
-}
-
-var fileList = new FileList(CTX);
-
-fileList.lookFor(".dm");
-
-fileList.setOnPathChangedListener(onPathChanged)
-
-fileList.setOnFileSelectedListener(onFileSelected);
-
-fileList.setPath(SDCARD);
+                                pathText.setText(path);
 
 
-fileListLayout.addView(fileList.theListView);
+                            }
 
-fileListWindow.setContentView(fileListLayout);
+                            var onFileSelected = function (path, fileName) {
 
-fileListWindow.setFocusable(true);
+                                var dialog = new android.app.AlertDialog.Builder(CTX);
 
-fileListWindow.setWidth(screenWidth);
-fileListWindow.setHeight(screenHeight);
+                                var text = new TextView(CTX);
 
-fileListWindow.showAtLocation(CTX.getWindow().getDecorView(), Gravity.CENTER, 0, 0);
-                        clientMessage("불러오기");
+                                text.setText(lang.confirm.loadProject.text);
 
-}catch(e){
+                                text.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, 20);
 
-error(e);
-}
+                                var scroll = new android.widget.ScrollView(CTX);
+
+                                dialog.setView(text);
+
+                                dialog.setTitle(lang.confirm.loadProject.title);
+
+                                dialog.setNegativeButton(lang.no, null);
+
+                                dialog.setPositiveButton(lang.yes, new android.content.DialogInterface.OnClickListener({
+                                    onClick: function () {
+
+                                        fileListWindow.dismiss();
+
+                                        rightBottomLayout.removeViews(1, rightBottomLayout.getChildCount() - 1);
+
+                                        modelTree = [];
+                                        textureMapLayer = [];
+
+                                        selectedBox = null;
+
+                                        resetLeftWindow();
+
+                                        loadProject(path + fileName);
+
+
+                                    }
+                                }));
+                                dialog.create();
+                                dialog.show();
+
+                            }
+
+                            var fileList = new FileList(CTX);
+
+                            fileList.lookFor(".dm");
+
+                            fileList.setOnPathChangedListener(onPathChanged)
+
+                            fileList.setOnFileSelectedListener(onFileSelected);
+
+                            fileList.setPath(SDCARD);
+
+
+                            fileListLayout.addView(fileList.theListView);
+
+                            fileListWindow.setContentView(fileListLayout);
+
+                            fileListWindow.setFocusable(true);
+
+                            fileListWindow.setWidth(screenWidth);
+                            fileListWindow.setHeight(screenHeight);
+
+                            fileListWindow.showAtLocation(CTX.getWindow().getDecorView(), Gravity.CENTER, 0, 0);
+                            clientMessage("불러오기");
+
+                        } catch (e) {
+
+                            error(e);
+                        }
                     }
-                })); 
+                }));
 
                 leftLayout.addView(importBtn);
 
@@ -1538,7 +1581,7 @@ error(e);
                                     isMakingModel = false;
                                     theRenderer = Renderer.createHumanoidRenderer();
 
-                                                                                                    eval("leftWindow.dismiss();rightTopWindow.dismiss();rightBottomWindow.dismiss();");
+                                    eval("leftWindow.dismiss();rightTopWindow.dismiss();rightBottomWindow.dismiss();");
                                 }
                             }));
                             dialog.create();
@@ -1653,41 +1696,44 @@ function spawnModelEntity() {
 }
 
 
-function modelEntityAI() {        
+function modelEntityAI() {
 
-        if (modelEntity == null) return;
+    if (modelEntity == null) return;
 
-        var ex = Entity.getX(modelEntity);
-        var ey = Entity.getY(modelEntity);
-        var ez = Entity.getZ(modelEntity);
+    var ex = Entity.getX(modelEntity);
+    var ey = Entity.getY(modelEntity);
+    var ez = Entity.getZ(modelEntity);
 
-        if (ex == 0 && ey == 0 && ez == 0) {
-            modelEntity = null;
-            clientMessage("위치000");
-            return;
-        }
-        
-        Entity.setPosition(modelEntity, theX, theY, theZ);
-       
-        Entity.setVelX(modelEntity, 0);
-        
-        Entity.setVelY(modelEntity, 0); 
-              
-        Entity.setVelZ(modelEntity, 0);
-        
+    if (ex == 0 && ey == 0 && ez == 0) {
+        modelEntity = null;
+        clientMessage("위치000");
+        return;
+    }
+
+    Entity.setPosition(modelEntity, theX, theY, theZ);
+
+    Entity.setVelX(modelEntity, 0);
+
+    Entity.setVelY(modelEntity, 0);
+
+    Entity.setVelZ(modelEntity, 0);
+
 
 }
 
 
 function newLevel() {
+	
+	clientMessage(lang.newLevelNoti);
+	
     new java.lang.Thread(new java.lang.Runnable({
         run: function () {
-        	
-        	 while (true) {
 
-            modelEntityAI();
-            java.lang.Thread.sleep(50);
-            
+            while (true) {
+
+                modelEntityAI();
+                java.lang.Thread.sleep(50);
+
             }
         }
     })).start();
@@ -1700,12 +1746,12 @@ function useItem(x, y, z, I, b, s, id, bd) {
 
     if (I == 281) spawnModelEntity(x, y, z);
 
-    if (I == modelMaker && isMakingModel == false){
-    	
-    	    theX = x;
-         theY = y + 1;
-         theZ = z;
-    
+    if (I == modelMaker && isMakingModel == false) {
+
+        theX = x;
+        theY = y + 1;
+        theZ = z;
+
 
         isMakingModel = true;
 
@@ -1717,52 +1763,49 @@ function useItem(x, y, z, I, b, s, id, bd) {
 
 
 
+function updateModel() {
 
-var theRenderer = Renderer.createHumanoidRenderer();
+    function theModel(renderer) {
 
-function updateModel(){
-	
-	function theModel(renderer){
-	
-		var Model = renderer.getModel();
-        	var head = Model.getPart('head');
-        	var body = Model.getPart('body');
-        	var rightArm = Model.getPart('rightArm');
-        	var leftArm = Model.getPart('leftArm');
-        	var rightLeg = Model.getPart('rightLeg');
-        	var leftLeg = Model.getPart('leftLeg');
-        	
-        	head.clear();
-        	body.clear();
-        	rightArm.clear();
-        	leftArm.clear();
-        	rightLeg.clear();
-        	leftLeg.clear();
-        	
-        	for(var a in modelTree){
-        		var m = modelTree[a];
-        		var modelPart = m.modelPart;
-        		
-        		eval(modelPart + ".setTextureOffset(" + m.textOffsetX + "," + m.textOffsetY + ");" );
-        		
-        		eval(modelPart + ".addBox(" + m.offsetX + "," + m.offsetY + "," + m.offsetZ +"," + m.dimensionX + "," + m.dimensionY + "," + m.dimensionZ + "," +  m.scale + ");" );
-        	
-        	eval(modelPart + ".setRotationPoint(" + m.rotationX + "," + m.rotationY + "," + m.rotationZ + ");");
-        	        	        	
-        	}
-		
-	}
-	theModel(theRenderer);
-	
-	Entity.setRenderType(modelEntity, theRenderer.renderType);
-	
+        var Model = renderer.getModel();
+        var head = Model.getPart('head');
+        var body = Model.getPart('body');
+        var rightArm = Model.getPart('rightArm');
+        var leftArm = Model.getPart('leftArm');
+        var rightLeg = Model.getPart('rightLeg');
+        var leftLeg = Model.getPart('leftLeg');
+
+        head.clear();
+        body.clear();
+        rightArm.clear();
+        leftArm.clear();
+        rightLeg.clear();
+        leftLeg.clear();
+
+        for (var a in modelTree) {
+            var m = modelTree[a];
+            var modelPart = m.modelPart;
+
+            eval(modelPart + ".setTextureOffset(" + m.textOffsetX + "," + m.textOffsetY + ");");
+
+            eval(modelPart + ".addBox(" + m.offsetX + "," + m.offsetY + "," + m.offsetZ + "," + m.dimensionX + "," + m.dimensionY + "," + m.dimensionZ + "," + m.scale + ");");
+
+            eval(modelPart + ".setRotationPoint(" + m.rotationX + "," + m.rotationY + "," + m.rotationZ + ");");
+
+        }
+
+    }
+    theModel(theRenderer);
+
+    Entity.setRenderType(modelEntity, theRenderer.renderType);
+
 
 }
 
 
-function attackHook(a, v){
+function attackHook(a, v) {
 
-if(v == modelEntity) preventDefault();
+    if (v == modelEntity) preventDefault();
 
 }
 
@@ -1779,206 +1822,206 @@ if(v == modelEntity) preventDefault();
 
 
 
-function FileList(context){
+function FileList(context) {
 
-  this.theListView = new ListView(context);
-  
-  var theListView = this.theListView;
-	var list = [];
-  var folderList = [];
-  var fileList = [];
-	var adapter = null; 
-	var path = "";
-	
-	var lookFor = null;
-	
-	
-	var onPathChangedListener = null;
-	var onFileSelectedListener = null;
-		
-	
-	
-	this.openPath = function(path){
-		
-	folderList = [];
-	fileList = [];
-	
-	var file = new File(path);
-	var files = file.listFiles();
-	
-	if(files == null) return false;
-	
-	if( path != SDCARD )
-	folderList.push(".../");
-	
-	for (var a in files) {
-		
-		var fileName2 = files[a].getName()
-		
-        	if (files[a].isDirectory()) {
-        		folderList.push(fileName2);
-        	} else {
-        		
-        		if(lookFor != null){
-        			
-        			if(lookFor instanceof String){
-        			if(! fileName2.endsWith(lookFor))
-        						 continue;
-        					
-        				}else if(lookFor instanceof Array){
-        				        		   
-        var index = fileName2.lastIndexOf(".");
-        
-        if(index == -1) continue;
-              
-        for(var b in lookFor){
-        
-        if(lookFor[b] == fileName2.substring(index)){
-                        
-       fileList.push(fileName2); 	
-        	
-       break; 	
-        	
-       }
-       
-       }
-       continue;
-    
-        				
-        				} 
-        				
-        		}
-        		
-        		fileList.push(fileName2);
-        		        		        		
-        	}
-  }
+    this.theListView = new ListView(context);
+
+    var theListView = this.theListView;
+    var list = [];
+    var folderList = [];
+    var fileList = [];
+    var adapter = null;
+    var path = "";
+
+    var lookFor = null;
+
+
+    var onPathChangedListener = null;
+    var onFileSelectedListener = null;
+
+
+
+    this.openPath = function (path) {
+
+        folderList = [];
+        fileList = [];
+
+        var file = new File(path);
+        var files = file.listFiles();
+
+        if (files == null) return false;
+
+        if (path != SDCARD) folderList.push(".../");
+
+        for (var a in files) {
+
+            var fileName2 = files[a].getName()
+
+            if (files[a].isDirectory()) {
+                folderList.push(fileName2);
+            } else {
+
+                if (lookFor != null) {
+
+                    if (lookFor instanceof String) {
+                        if (!fileName2.endsWith(lookFor)) continue;
+
+                    } else if (lookFor instanceof Array) {
+
+                        var index = fileName2.lastIndexOf(".");
+
+                        if (index == -1) continue;
+
+                        for (var b in lookFor) {
+
+                            if (lookFor[b] == fileName2.substring(index)) {
+
+                                fileList.push(fileName2);
+
+                                break;
+
+                            }
+
+                        }
+                        continue;
+
+
+                    }
+
+                }
+
+                fileList.push(fileName2);
+
+            }
+        }
         fileList = fileList.sort();
         folderList = folderList.sort();
         return true;
-	};
-	
-	
-this.updateAdapter = function(){
-
-list = [];
-
-for(var a in folderList)
-list.push(folderList[a]);
-
-for(var a in fileList)
-list.push(fileList[a]);
-
-adapter = new android.widget.ArrayAdapter(CTX, android.R.layout.simple_list_item_1, list);
-
-theListView.setAdapter(adapter);
+    };
 
 
-};
+    this.updateAdapter = function () {
+
+        list = [];
+
+        for (var a in folderList)
+        list.push(folderList[a]);
+
+        for (var a in fileList)
+        list.push(fileList[a]);
+
+        adapter = new android.widget.ArrayAdapter(CTX, android.R.layout.simple_list_item_1, list);
+
+        theListView.setAdapter(adapter);
+
+
+    };
 
 
 
-var openPath = this.openPath;
-var updateAdapter = this.updateAdapter;
+    var openPath = this.openPath;
+    var updateAdapter = this.updateAdapter;
 
 
-this.setPath = function( thePath ){
+    this.setPath = function (thePath) {
 
-clientMessage("path is "+thePath);
-
-
-	
-if(thePath == null || thePath.length == 0){
-
-thePath = 	SDCARD;
-	
-}	else{
+        clientMessage("path is " + thePath);
 
 
-var lastChar = thePath.charAt(thePath.split("").length-2);
 
-clientMessage("lastChar "+lastChar);
+        if (thePath == null || thePath.length == 0) {
 
-if(lastChar != "/"){
+            thePath = SDCARD;
 
-clientMessage("last char isnt / !!");
-thePath += "/";	
-}
-
-}
-
-if(openPath(thePath)){
-	path = thePath;
-updateAdapter();	
-if(onPathChangedListener != null){
-	
-onPathChangedListener(path);
-}
-}
-	
-};
+        } else {
 
 
-	this.getPath = function() {
-		return path;
-	};
+            var lastChar = thePath.charAt(thePath.split("").length - 2);
+
+            clientMessage("lastChar " + lastChar);
+
+            if (lastChar != "/") {
+
+                clientMessage("last char isnt / !!");
+                thePath += "/";
+            }
+
+        }
+
+        if (openPath(thePath)) {
+            path = thePath;
+            updateAdapter();
+            if (onPathChangedListener != null) {
+
+                onPathChangedListener(path);
+            }
+        }
+
+    };
 
 
-this.lookFor = function(stringOrStringArr){
+    this.getPath = function () {
+        return path;
+    };
 
-lookFor = stringOrStringArr;
 
-};
-		
-	this.setOnPathChangedListener = function(OnPathChangedListener) {
-		onPathChangedListener = OnPathChangedListener;
-	};
+    this.lookFor = function (stringOrStringArr) {
 
-	this.setOnFileSelectedListener = function (OnFileSelectedListener) {
-		onFileSelectedListener = OnFileSelectedListener;
-	};
-	
+        lookFor = stringOrStringArr;
 
-var setPath = this.setPath;
+    };
 
-var listener = new android.widget.AdapterView.OnItemClickListener({
-                    onItemClick: function(parent, view, position, id) {
-                    	try{
-                        
-                        var fileName = list[position]+"";
-                        
-                        clientMessage("고른 파일이름 "+fileName+ "경로 "+path);
-                        
-                        if(fileName == ".../"){
-                        	
-                        	setPath(new File(path).getParent());
-                        	
-                        } else if(new File(path+fileName).isDirectory()){
-                        	
-                        	clientMessage("디렉토리임!!"); 	
-                        	
-                        	setPath(path+fileName);
-                        	
-                        	}else{
-                        		
-                        		clientMessage("파일 고름!!");
+    this.setOnPathChangedListener = function (OnPathChangedListener) {
+        onPathChangedListener = OnPathChangedListener;
+    };
 
-                        		 if(onFileSelectedListener != null)
-                        {
-                        	onFileSelectedListener(path, fileName);
-                        	
-                        	}
-                        	
-                        }
-                        }catch(e){
-                        	
-                        	error(e);
-                        	}
+    this.setOnFileSelectedListener = function (OnFileSelectedListener) {
+        onFileSelectedListener = OnFileSelectedListener;
+    };
+
+
+    var setPath = this.setPath;
+
+    var listener = new android.widget.AdapterView.OnItemClickListener({
+        onItemClick: function (parent, view, position, id) {
+            try {
+
+                var fileName = list[position] + "";
+
+                clientMessage("고른 파일이름 " + fileName + "경로 " + path);
+
+                if (fileName == ".../") {
+
+                    setPath(new File(path).getParent());
+
+                } else if (new File(path + fileName).isDirectory()) {
+
+                    clientMessage("디렉토리임!!");
+
+                    setPath(path + fileName);
+
+                } else {
+
+                    clientMessage("파일 고름!!");
+
+                    if (onFileSelectedListener != null) {
+                        onFileSelectedListener(path, fileName);
 
                     }
-                });
 
-                this.theListView.setOnItemClickListener(listener);
-                            
-}                
-             
+                }
+            } catch (e) {
+
+                error(e);
+            }
+
+        }
+    });
+
+    this.theListView.setOnItemClickListener(listener);
+
+}
+
+
+
+
