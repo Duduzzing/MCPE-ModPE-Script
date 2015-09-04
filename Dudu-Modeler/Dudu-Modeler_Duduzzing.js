@@ -375,6 +375,9 @@ var cloneBox = null;
 
 var theRenderer = Renderer.createHumanoidRenderer();
 
+var theSkin = null;
+//the skin dir
+
 /////////////////////////////////////////////////////////////
 
 
@@ -481,6 +484,8 @@ function deleteBox(index) {
         selectedBox = null;
 
         resetLeftWindow();
+        
+        updateModel();
 
     } catch (err) {
 
@@ -524,6 +529,8 @@ function deleteAllBoxes() {
                 textureMapLayer = [];
 
                 resetLeftWindow();
+                
+                updateModel();
 
             }
         }));
@@ -537,7 +544,7 @@ function deleteAllBoxes() {
 
 }
 
-function pasteBx(toClone) {
+function pasteBox(toClone) {
     this.name = toClone.name;
     this.dimensionX = toClone.dimensionX;
     this.dimensionY = toClone.dimensionY;
@@ -769,7 +776,7 @@ function showStartMenu(isEditMode) {
                         onItemSelected: function (parent, view, position) {
 
                             if (position == 1) {
-                            	
+       clientMessage("휴몮이드모델!!");                     	
                             	loadModelBase(HumanoidModelBase);
                             	
                                 /////////////////////load humanoid model////////////////////////////
@@ -1278,7 +1285,7 @@ function showModelEditMenu() {
                     onClick: function (view) {
                         if (selectedBox != null) {
                             deleteBox(modelTree.indexOf(selectedBox));
-                            updateModel();
+                          
                         }
 
                     }
@@ -1293,7 +1300,7 @@ function showModelEditMenu() {
                 clearAllBtn.setOnClickListener(new android.view.View.OnClickListener({
                     onClick: function (view) {
                         deleteAllBoxes();
-                        updateModel();
+                        
                     }
                 }));
 
@@ -1395,6 +1402,72 @@ function showModelEditMenu() {
                 var loadTextureBtn = new Button(CTX);
 
                 loadTextureBtn.setText(lang.leftWindow.loadTextureBtn);
+                
+                
+                loadTextureBtn.setOnClickListener(new android.view.View.OnClickListener({
+                    onClick: function (view) {
+                    	                                          
+                    	                                         try {
+
+                            var fileListWindow = new PopupWindow(CTX);
+
+                            var fileListLayout = new LinearLayout(CTX);
+
+                            fileListLayout.setOrientation(1);
+
+                            var pathText = new TextView(CTX);
+
+                            fileListLayout.addView(pathText);
+
+
+                            var onPathChanged = function (path) {
+
+                                pathText.setText(path);
+
+
+                            }
+
+                            var onFileSelected = function (path, fileName) {
+
+theSkin = path;
+
+fileListWindow.dismiss();
+
+updateModel();
+
+}
+
+                            var fileList = new FileList(CTX);
+
+                            fileList.lookFor(".png");
+
+                            fileList.setOnPathChangedListener(onPathChanged)
+
+                            fileList.setOnFileSelectedListener(onFileSelected);
+
+                            fileList.setPath(SDCARD);
+
+                            fileListLayout.addView(fileList.theListView);
+
+                            fileListWindow.setContentView(fileListLayout);
+
+                            fileListWindow.setFocusable(true);
+
+                            fileListWindow.setWidth(screenWidth);
+                            fileListWindow.setHeight(screenHeight);
+
+                            fileListWindow.showAtLocation(CTX.getWindow().getDecorView(), Gravity.CENTER, 0, 0);
+                           
+
+                        } catch (e) {
+
+                            error(e);
+                        }
+                        
+                        //////////todo//update skinMap///////////////
+
+                    }
+                }));
 
                 leftLayout.addView(loadTextureBtn);
 
@@ -1405,7 +1478,7 @@ function showModelEditMenu() {
                 editProjectBtn.setOnClickListener(new android.view.View.OnClickListener({
                     onClick: function (view) {
 
-                        showStartMenu(true);
+                                                                     showStartMenu(true);
                         //////////todo//update skinMap///////////////
 
                     }
@@ -1507,7 +1580,7 @@ function showModelEditMenu() {
                             fileListWindow.setHeight(screenHeight);
 
                             fileListWindow.showAtLocation(CTX.getWindow().getDecorView(), Gravity.CENTER, 0, 0);
-                            clientMessage("불러오기");
+                           
 
                         } catch (e) {
 
@@ -1798,6 +1871,9 @@ function updateModel() {
     theModel(theRenderer);
 
     Entity.setRenderType(modelEntity, theRenderer.renderType);
+    
+    if(theSkin != null)
+    Entity.setMobSkin(modelEntity, theSkin);
 
 
 }
@@ -2021,7 +2097,3 @@ function FileList(context) {
     this.theListView.setOnItemClickListener(listener);
 
 }
-
-
-
-
