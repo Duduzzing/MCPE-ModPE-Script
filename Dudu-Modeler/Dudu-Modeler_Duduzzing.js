@@ -2,7 +2,7 @@
  * Dudu-Modeler
  * (in-game model editor)
  * 
- * Copyright © Duduzzing
+ * Copyright © Duduzzing / 두두찡
  * All rights deserved
  * 
  */
@@ -52,6 +52,8 @@ var Paint = android.graphics.Paint;
 
 var PopupWindow = android.widget.PopupWindow;
 
+var Rect = android.graphics.Rect;
+
 var ScrollView = android.widget.ScrollView;
 
 var Space = android.widget.Space;
@@ -60,7 +62,7 @@ var TextView = android.widget.TextView;
 
 var View = android.view.View;
 
-var isPro =  CTX.getPackageName().equals("net.zhuoweizhang.mcpelauncher.pro");
+var isPro = CTX.getPackageName().equals("net.zhuoweizhang.mcpelauncher.pro");
 
 
 var bugReportUrl = "http://goo.gl/forms/LCb0JyWxz1";
@@ -158,26 +160,26 @@ var tempLang = {
             exitBtn: "Exit"
         },
         help: {
-        whereIsSaveDir: {
-        	title: "Where is the file saving directory?",
-        	 text: "/sdcard/Duduzzing/Dudu-Modeler/"
-        	},
-skinCrash: {
-	title: "The loaded skin crashes. What should I do?",
-	text: "Just quit the game by HomeButton, and re-open the game"
-	},
-loadProject:{
-	title: "How can I load project?",
-	text: "When you save your project, you get a file ends with \".md\". That file is what you can load & edit with Dudu-Modeler"
-	},
-modelEntityDied:{
-	title: "The model entity died! What should I do?",
-	text: "Respawn it by \"Respawn model entity\" button"
-	},
-canModelEntityStare:{
-	title: "Can I make the model entity to stare only one spot?",
-	text: "Just hold wheat and scan the model with Third-person view"
-        	}
+            whereIsSaveDir: {
+                title: "Where is the file saving directory?",
+                text: "/sdcard/Duduzzing/Dudu-Modeler/"
+            },
+            skinCrash: {
+                title: "The loaded skin crashes. What should I do?",
+                text: "Just quit the game by HomeButton, and re-open the game"
+            },
+            loadProject: {
+                title: "How can I load project?",
+                text: "When you save your project, you get a file ends with \".md\". That file is what you can load & edit with Dudu-Modeler"
+            },
+            modelEntityDied: {
+                title: "The model entity died! What should I do?",
+                text: "Respawn it by \"Respawn model entity\" button"
+            },
+            canModelEntityStare: {
+                title: "Can I make the model entity to stare only one spot?",
+                text: "Just hold wheat and scan the model with Third-person view"
+            }
         },
 
         rightTopWindow: {
@@ -277,26 +279,26 @@ canModelEntityStare:{
             exitBtn: "나가기"
         },
         help: {
-        whereIsSaveDir: {
-        	title: "파일 저장 경로가 어딘가요?",
-        	 text: "/sdcard/Duduzzing/Dudu-Modeler/"
-        	},
-skinCrash: {
-	title: "불러온 스킨이 깨집니다. 어떡하죠?",
-	text: "홈버튼으로 나갔다오세요"
-	},
-loadProject:{
-	title: "어떻게 프로젝트를 불러오나요?",
-	text: "모델링을 저장하면 \".md\"로 끝나는 파일을 얻는데, 그걸 불러오고 수정할 수 있습니다"
-	},
-modelEntityDied:{
-	title: "모델 엔티티가 죽었어요! 어떡하죠?",
-	text: "\"모델 엔티티 다시 소환하기\" 버튼으로 재소환하세요"
-	},
-canModelEntityStare:{
-	title: "모델 엔티티가 한 방향만 바라보게 할 수는 없나요?",
-	text: "밀을 들고있는 상태에서 3인칭으로 모델링을 훑어보세요"
-        	}
+            whereIsSaveDir: {
+                title: "파일 저장 경로가 어딘가요?",
+                text: "/sdcard/Duduzzing/Dudu-Modeler/"
+            },
+            skinCrash: {
+                title: "불러온 스킨이 깨집니다. 어떡하죠?",
+                text: "홈버튼으로 나갔다오세요"
+            },
+            loadProject: {
+                title: "어떻게 프로젝트를 불러오나요?",
+                text: "모델링을 저장하면 \".md\"로 끝나는 파일을 얻는데, 그걸 불러오고 수정할 수 있습니다"
+            },
+            modelEntityDied: {
+                title: "모델 엔티티가 죽었어요! 어떡하죠?",
+                text: "\"모델 엔티티 다시 소환하기\" 버튼으로 재소환하세요"
+            },
+            canModelEntityStare: {
+                title: "모델 엔티티가 한 방향만 바라보게 할 수는 없나요?",
+                text: "밀을 들고있는 상태에서 3인칭으로 모델링을 훑어보세요"
+            }
         },
         rightTopWindow: {
             textureMapText: "텍스쳐 맵 (클릭하면 크게 보여요)"
@@ -443,16 +445,102 @@ var theSkin = null;
 
 
 var HumanoidModelBase = {
-        name: "HumanoidModel",
-        textureSize:{x: 64, y: 32},
-        model:[
-                {name : "head", dimensionX : 8, dimensionY : 8, dimensionZ : 8, rotationX : 0, rotationY : 0, rotationZ : 0, offsetX : -4, offsetY : -8, offsetZ : -4, scale : 0, textOffsetX : 0, textOffsetY : 0, modelPart : "head"},
-                {name : "body", dimensionX : 8, dimensionY : 12, dimensionZ : 4, rotationX : 0, rotationY : 0, rotationZ : 0, offsetX : -4, offsetY : 0, offsetZ : -2, scale : 0, textOffsetX : 16, textOffsetY : 16, modelPart : "body"},
-                {name : "rightArm", dimensionX : 4, dimensionY : 12, dimensionZ : 4, rotationX : -5, rotationY : 2, rotationZ : 0, offsetX : -3, offsetY : -2, offsetZ : -2, scale : 0, textOffsetX: 40, textOffsetY : 16, modelPart : "rightArm"},
-                {name : "leftArm", dimensionX : 4, dimensionY : 12, dimensionZ : 4, rotationX : 5, rotationY : 2, rotationZ : 0, offsetX : -1, offsetY : -2, offsetZ : -2, scale : 0, textOffsetX : 40, textOffsetY : 16, modelPart : "leftArm"},
-                {name : "rightLeg", dimensionX : 4, dimensionY : 12, dimensionZ : 4, rotationX : -2, rotationY : 12, rotationZ : 0, offsetX : -2, offsetY : 0, offsetZ : -2, scale : 0, textOffsetX : 0, textOffsetY : 16, modelPart : "rightLeg"},
-                {name : "leftLeg", dimensionX : 4, dimensionY : 12, dimensionZ : 4, rotationX : 2, rotationY : 12, rotationZ : 0, offsetX : -2, offsetY : 0, offsetZ : -2, scale : 0, textOffsetX : 0, textOffsetY : 16, modelPart : "leftLeg"}
-        ]                	
+    name: "HumanoidModel",
+    textureSize: {
+        x: 64,
+        y: 32
+    },
+    model: [{
+        name: "head",
+        dimensionX: 8,
+        dimensionY: 8,
+        dimensionZ: 8,
+        rotationX: 0,
+        rotationY: 0,
+        rotationZ: 0,
+        offsetX: -4,
+        offsetY: -8,
+        offsetZ: -4,
+        scale: 0,
+        textOffsetX: 0,
+        textOffsetY: 0,
+        modelPart: "head"
+    }, {
+        name: "body",
+        dimensionX: 8,
+        dimensionY: 12,
+        dimensionZ: 4,
+        rotationX: 0,
+        rotationY: 0,
+        rotationZ: 0,
+        offsetX: -4,
+        offsetY: 0,
+        offsetZ: -2,
+        scale: 0,
+        textOffsetX: 16,
+        textOffsetY: 16,
+        modelPart: "body"
+    }, {
+        name: "rightArm",
+        dimensionX: 4,
+        dimensionY: 12,
+        dimensionZ: 4,
+        rotationX: -5,
+        rotationY: 2,
+        rotationZ: 0,
+        offsetX: -3,
+        offsetY: -2,
+        offsetZ: -2,
+        scale: 0,
+        textOffsetX: 40,
+        textOffsetY: 16,
+        modelPart: "rightArm"
+    }, {
+        name: "leftArm",
+        dimensionX: 4,
+        dimensionY: 12,
+        dimensionZ: 4,
+        rotationX: 5,
+        rotationY: 2,
+        rotationZ: 0,
+        offsetX: -1,
+        offsetY: -2,
+        offsetZ: -2,
+        scale: 0,
+        textOffsetX: 40,
+        textOffsetY: 16,
+        modelPart: "leftArm"
+    }, {
+        name: "rightLeg",
+        dimensionX: 4,
+        dimensionY: 12,
+        dimensionZ: 4,
+        rotationX: -2,
+        rotationY: 12,
+        rotationZ: 0,
+        offsetX: -2,
+        offsetY: 0,
+        offsetZ: -2,
+        scale: 0,
+        textOffsetX: 0,
+        textOffsetY: 16,
+        modelPart: "rightLeg"
+    }, {
+        name: "leftLeg",
+        dimensionX: 4,
+        dimensionY: 12,
+        dimensionZ: 4,
+        rotationX: 2,
+        rotationY: 12,
+        rotationZ: 0,
+        offsetX: -2,
+        offsetY: 0,
+        offsetZ: -2,
+        scale: 0,
+        textOffsetX: 0,
+        textOffsetY: 16,
+        modelPart: "leftLeg"
+    }]
 };
 
 
@@ -545,7 +633,7 @@ function deleteBox(index) {
         selectedBox = null;
 
         resetLeftWindow();
-        
+
         updateModel();
 
     } catch (err) {
@@ -586,11 +674,11 @@ function deleteAllBoxes() {
                 modelTree = [];
 
                 selectedBox = null;
-                
+
                 textureMapLayer = [];
 
                 resetLeftWindow();
-                
+
                 updateModel();
 
             }
@@ -740,7 +828,7 @@ function loadProject(path) {
                                 }));
 
                                 rightBottomLayout.addView(btn);
-                                
+
                             }
                         } catch (e) {
                             error(e);
@@ -759,85 +847,84 @@ function loadProject(path) {
 
 }
 
-function loadModelBase(modelBase){
-
-         
-        modelName = modelBase.name;
-        textureSize.x = modelBase.textureSize.x;
-        textureSize.y = modelBase.textureSize.y;
-        modelTree = modelBase.model;
-                            		
-}
+function loadModelBase(modelBase) {
 
 
-function loadTexture(skinPath,skinName){
-	try{
-	var dstPath = (isPro) ? SDCARD + "/Android/data/net.zhuoweizhang.mcpelauncher.pro/files/textures/images/skin/" : SDCARD + "/Android/data/net.zhuoweizhang.mcpelauncher/files/textures/images/skin/";
-	dstPath += skinName;		 
-	 	
-	 
-	var file = new File(dstPath);
-
-	if(!file.getParentFile().exists())
-	file.getParentFile().mkdirs();
-
-var fo = new java.io.FileOutputStream(dstPath);
-	
-	 	var bitmap = BitmapFactory.decodeFile(skinPath+skinName);
-	
-	bitmap.compress(Bitmap.CompressFormat.PNG, 100 , fo); 	
-
-	
-	Entity.setMobSkin(modelEntity, "skin/"+skinName);
-	
-	} catch(e){
-		
-	error(e);
-	}
-}
-
-
-function showcase(){
-	
-	leftWindow.dismiss();
-	rightTopWindow.dismiss();
-        rightBottomWindow.dismiss();
-        
-        var showcaseWindow;
-
-        var btn = new Button(CTX);
-        
-        btn.setBackgroundDrawable(new Drawable.ColorDrawable(Color.TRANSPARENT));
-        
-        btn.setTextColor(Color.argb(120,255,255,255));
-        
-        btn.setText("DM");
-        
-        btn.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, 30);
-        
-        btn.setOnClickListener(new android.view.View.OnClickListener({
-                    onClick: function (view) {
-                        
-                        showcaseWindow.dismiss();
-                        
-                        showModelEditMenu();
-                        
-                    }
-                }));
-        
-        showcaseWindow = new PopupWindow(btn, screenWidth/10, screenWidth/10);
-        
-        showcaseWindow.setBackgroundDrawable(new Drawable.ColorDrawable(Color.argb(120,0,0,0)));
-        
-        showcaseWindow.showAtLocation(CTX.getWindow().getDecorView(), Gravity.RIGHT | Gravity.BOTTOM, 0, 0);
+    modelName = modelBase.name;
+    textureSize.x = modelBase.textureSize.x;
+    textureSize.y = modelBase.textureSize.y;
+    modelTree = modelBase.model;
 
 }
 
 
+function loadTexture(skinPath, skinName) {
+    try {
+        var dstPath = (isPro) ? SDCARD + "/Android/data/net.zhuoweizhang.mcpelauncher.pro/files/textures/images/skin/" : SDCARD + "/Android/data/net.zhuoweizhang.mcpelauncher/files/textures/images/skin/";
+        dstPath += skinName;
 
 
-function showHelpDialog(theTitle, theText){
-	
+        var file = new File(dstPath);
+
+        if (!file.getParentFile().exists()) file.getParentFile().mkdirs();
+
+        var fo = new java.io.FileOutputStream(dstPath);
+
+        var bitmap = BitmapFactory.decodeFile(skinPath + skinName);
+
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, fo);
+
+
+        Entity.setMobSkin(modelEntity, "skin/" + skinName);
+
+    } catch (e) {
+
+        error(e);
+    }
+}
+
+
+function showcase() {
+
+    leftWindow.dismiss();
+    rightTopWindow.dismiss();
+    rightBottomWindow.dismiss();
+
+    var showcaseWindow;
+
+    var btn = new Button(CTX);
+
+    btn.setBackgroundDrawable(new Drawable.ColorDrawable(Color.TRANSPARENT));
+
+    btn.setTextColor(Color.argb(120, 255, 255, 255));
+
+    btn.setText("DM");
+
+    btn.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, 30);
+
+    btn.setOnClickListener(new android.view.View.OnClickListener({
+        onClick: function (view) {
+
+            showcaseWindow.dismiss();
+
+            showModelEditMenu();
+
+        }
+    }));
+
+    showcaseWindow = new PopupWindow(btn, screenWidth / 10, screenWidth / 10);
+
+    showcaseWindow.setBackgroundDrawable(new Drawable.ColorDrawable(Color.argb(120, 0, 0, 0)));
+
+    showcaseWindow.showAtLocation(CTX.getWindow().getDecorView(), Gravity.RIGHT | Gravity.BOTTOM, 0, 0);
+
+}
+
+
+
+
+function showHelpDialog(theTitle, theText) {
+
     CTX.runOnUiThread(new java.lang.Runnable({
         run: function () {
             try {
@@ -846,11 +933,11 @@ function showHelpDialog(theTitle, theText){
                 var text = new TextView(CTX);
 
                 text.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, 25);
-                
-                text.setText(theText);
-                
 
-              
+                text.setText(theText);
+
+
+
                 dialog.setTitle(theTitle);
 
                 dialog.setView(text);
@@ -864,94 +951,92 @@ function showHelpDialog(theTitle, theText){
                 error(err);
             }
         }
-    })); 	
-	
-	
+    }));
+
+
 }
 
 
 
 
-function showHelpMenu(){
+function showHelpMenu() {
 
-try{
+    try {
 
-var helpWindow;
+        var helpWindow;
 
-var scroll = new ScrollView(CTX);
+        var scroll = new ScrollView(CTX);
 
-var layout = new LinearLayout(CTX);
+        var layout = new LinearLayout(CTX);
 
-layout.setOrientation(1);
+        layout.setOrientation(1);
 
-var theTitleArray = [
-lang.help.whereIsSaveDir.title,
-lang.help.skinCrash.title,
-lang.help.loadProject.title,
-lang.help.modelEntityDied.title,
-lang.help.canModelEntityStare.title
-];
+        var theTitleArray = [
+        lang.help.whereIsSaveDir.title,
+        lang.help.skinCrash.title,
+        lang.help.loadProject.title,
+        lang.help.modelEntityDied.title,
+        lang.help.canModelEntityStare.title];
 
-var theTextArray = [
-lang.help.whereIsSaveDir.text,
-lang.help.skinCrash.text,
-lang.help.loadProject.text,
-lang.help.modelEntityDied.text,
-lang.help.canModelEntityStare.text
-];
+        var theTextArray = [
+        lang.help.whereIsSaveDir.text,
+        lang.help.skinCrash.text,
+        lang.help.loadProject.text,
+        lang.help.modelEntityDied.text,
+        lang.help.canModelEntityStare.text];
 
 
-function addBtn(theTitleArray, theTextArray){
-	
-for(var a in theTitleArray){	
-	
-var btn = new Button(CTX);
+        function addBtn(theTitleArray, theTextArray) {
 
-btn.setText(theTitleArray[a]);
+            for (var a in theTitleArray) {
 
-btn.setId(a);
+                var btn = new Button(CTX);
 
-btn.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, 20);
-                
+                btn.setText(theTitleArray[a]);
 
-btn.setOnClickListener(new android.view.View.OnClickListener({
+                btn.setId(a);
+
+                btn.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, 20);
+
+
+                btn.setOnClickListener(new android.view.View.OnClickListener({
                     onClick: function (view) {
 
-var index = view.getId();
+                        var index = view.getId();
                         showHelpDialog(theTitleArray[index], theTextArray[index]);
-                        
+
                     }
                 }));
 
 
-layout.addView(btn);
-}
+                layout.addView(btn);
+            }
 
-}
-
-
-
-
-addBtn(theTitleArray, theTextArray);
+        }
 
 
 
-scroll.addView(layout);
+
+        addBtn(theTitleArray, theTextArray);
 
 
-        helpWindow = new PopupWindow(scroll, screenWidth/2, screenHeight/2);
-        
+
+        scroll.addView(layout);
+
+
+        helpWindow = new PopupWindow(scroll, screenWidth / 2, screenHeight / 2);
+
         helpWindow.setFocusable(true);
-        
-        helpWindow.setBackgroundDrawable(new Drawable.ColorDrawable(Color.argb(120,0,0,0)));
-        
+
+        helpWindow.setBackgroundDrawable(new Drawable.ColorDrawable(Color.argb(120, 0, 0, 0)));
+
         helpWindow.showAtLocation(CTX.getWindow().getDecorView(), Gravity.CENTER, 0, 0);
 
 
-}catch(err){
-	error(err);
-	}
-        
+    } catch (err) {
+        error(err);
+    }
+
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -1018,13 +1103,13 @@ function showStartMenu(isEditMode) {
                     modelBaseSpinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener({
                         onItemSelected: function (parent, view, position) {
 
-                            if (position == 1) {                     	
-                            	loadModelBase(HumanoidModelBase);
-                            	
-                            	modelNameEdit.setText(modelName);
-                            	textureWidthEdit.setText(textureSize.x + "");
-                            	textureHeightEdit.setText(textureSize.y + "");
-                         
+                            if (position == 1) {
+                                loadModelBase(HumanoidModelBase);
+
+                                modelNameEdit.setText(modelName);
+                                textureWidthEdit.setText(textureSize.x + "");
+                                textureHeightEdit.setText(textureSize.y + "");
+
                             }
 
                         }
@@ -1071,8 +1156,9 @@ function showStartMenu(isEditMode) {
 
                 dialog.setNegativeButton(lang.startMenu.exit, new android.content.DialogInterface.OnClickListener({
                     onClick: function () {
-isMakingModel = false;                    }
-}) );
+                        isMakingModel = false;
+                    }
+                }));
 
                 dialog.setPositiveButton(lang.startMenu.create, new android.content.DialogInterface.OnClickListener({
                     onClick: function () {
@@ -1085,21 +1171,21 @@ isMakingModel = false;                    }
                         if (!isVar(name)) {
 
                             toast(lang.errorMessage.string);
-                            if(!isEditMode) isMakingModel = false;      
+                            if (!isEditMode) isMakingModel = false;
                             return;
 
                         }
                         if (isNaN(textX) || isNaN(textY)) {
 
                             toast(lang.errorMessage.int);
-                          if(!isEditMode) isMakingModel = false;      
+                            if (!isEditMode) isMakingModel = false;
 
                             return;
                         }
                         if (textX < 1 || textY < 1) {
 
                             toast(lang.errorMessage.positive);
-                            if(!isEditMode) isMakingModel = false;      
+                            if (!isEditMode) isMakingModel = false;
 
                             return;
                         }
@@ -1108,13 +1194,13 @@ isMakingModel = false;                    }
                         textureSize.x = textX;
                         textureSize.y = textY;
 
-                        
 
-                        if (!isEditMode){
-spawnModelEntity();                        
-showModelEditMenu();
 
-}                        	 
+                        if (!isEditMode) {
+                            spawnModelEntity();
+                            showModelEditMenu();
+
+                        }
 
                     }
                 }));
@@ -1526,7 +1612,15 @@ function showModelEditMenu() {
                         rightBottomLayout.addView(btn);
 
                         setLeftWindow();
-
+                        
+                        ////////////////////////////////////////////////////////////////////////////
+                        
+                        textureMapLayer.push(getBoxTexture(modelTree.length - 1));
+                        
+                        textureMapBtn.setBackgroundDrawable(new Drawable.LayerDrawable(textureMapLayer));
+                        
+                        ////////////////////////////////////////////////////////////////////////////
+                        
                     }
                 }));
 
@@ -1540,7 +1634,7 @@ function showModelEditMenu() {
                     onClick: function (view) {
                         if (selectedBox != null) {
                             deleteBox(modelTree.indexOf(selectedBox));
-                          
+
                         }
 
                     }
@@ -1555,7 +1649,7 @@ function showModelEditMenu() {
                 clearAllBtn.setOnClickListener(new android.view.View.OnClickListener({
                     onClick: function (view) {
                         deleteAllBoxes();
-                        
+
                     }
                 }));
 
@@ -1651,13 +1745,13 @@ function showModelEditMenu() {
                 var showcaseBtn = new Button(CTX);
 
                 showcaseBtn.setText(lang.leftWindow.showcaseBtn);
-                
-                showcaseBtn.setOnClickListener(new android.view.View.OnClickListener({
-                                onClick: function (view) {
-                                	
-                                    showcase();
 
-                                }
+                showcaseBtn.setOnClickListener(new android.view.View.OnClickListener({
+                    onClick: function (view) {
+
+                        showcase();
+
+                    }
                 }));
 
                 leftLayout.addView(showcaseBtn);
@@ -1665,12 +1759,12 @@ function showModelEditMenu() {
                 var loadTextureBtn = new Button(CTX);
 
                 loadTextureBtn.setText(lang.leftWindow.loadTextureBtn);
-                
-                
+
+
                 loadTextureBtn.setOnClickListener(new android.view.View.OnClickListener({
                     onClick: function (view) {
-                    	                                          
-                    	                                         try {
+
+                        try {
 
                             var fileListWindow = new PopupWindow(CTX);
 
@@ -1692,15 +1786,15 @@ function showModelEditMenu() {
 
                             var onFileSelected = function (path, fileName) {
 
-theSkin = fileName;
+                                theSkin = fileName;
 
-loadTexture(path,fileName);
+                                loadTexture(path, fileName);
 
-fileListWindow.dismiss();
+                                fileListWindow.dismiss();
 
-updateModel();
+                                updateModel();
 
-}
+                            }
 
                             var fileList = new FileList(CTX);
 
@@ -1722,13 +1816,13 @@ updateModel();
                             fileListWindow.setHeight(screenHeight);
 
                             fileListWindow.showAtLocation(CTX.getWindow().getDecorView(), Gravity.CENTER, 0, 0);
-                           
+
 
                         } catch (e) {
 
                             error(e);
                         }
-                        
+
                         //////////todo//update skinMap///////////////
 
                     }
@@ -1743,7 +1837,7 @@ updateModel();
                 editProjectBtn.setOnClickListener(new android.view.View.OnClickListener({
                     onClick: function (view) {
 
-                                                                     showStartMenu(true);
+                        showStartMenu(true);
                         //////////todo//update skinMap///////////////
 
                     }
@@ -1841,7 +1935,7 @@ updateModel();
                             fileListWindow.setHeight(screenHeight);
 
                             fileListWindow.showAtLocation(CTX.getWindow().getDecorView(), Gravity.CENTER, 0, 0);
-                           
+
 
                         } catch (e) {
 
@@ -1859,19 +1953,19 @@ updateModel();
                 exportBtn.setOnClickListener(new android.view.View.OnClickListener({
                     onClick: function (view) {
                         saveProject();
-                        clientMessage(        lang.saveNoti );
+                        clientMessage(lang.saveNoti);
 
                     }
                 }));
 
                 leftLayout.addView(exportBtn);
-                
-                
-                
+
+
+
                 var respawnModelEntityBtn = new Button(CTX);
 
                 respawnModelEntityBtn.setText(lang.leftWindow.respawnModelEntityBtn);
-                
+
                 respawnModelEntityBtn.setOnClickListener(new android.view.View.OnClickListener({
                     onClick: function (view) {
                         spawnModelEntity();
@@ -1880,45 +1974,45 @@ updateModel();
                     }
                 }));
 
-                leftLayout.addView( respawnModelEntityBtn);
-                
-                
+                leftLayout.addView(respawnModelEntityBtn);
+
+
                 var bugReportBtn = new Button(CTX);
 
-                bugReportBtn.setText(lang.leftWindow.bugReportBtn );
-                
-                bugReportBtn.setOnClickListener(new android.view.View.OnClickListener({
-    onClick: function(viewarg){
-      try{        
-        var webView = new android.webkit.WebView(CTX);
-        var webset = webView.getSettings();
-        webset.setSupportZoom(true);
-        webset.setJavaScriptEnabled(true);
-        webset.setAllowContentAccess(true);
-        webset.setAllowFileAccess(true);
-        
-        webView.setWebChromeClient(new android.webkit.WebChromeClient());
-        
-        webView.setWebViewClient(new android.webkit.WebViewClient());
-        
-        webView.loadUrl(bugReportUrl);
-        
-        new android.app.AlertDialog.Builder(CTX).setView(webView).show();
-        
-      } catch(e){
-        error(e);
-      }
-    }
-  }));
+                bugReportBtn.setText(lang.leftWindow.bugReportBtn);
 
-                leftLayout.addView( bugReportBtn);
-                
-                
+                bugReportBtn.setOnClickListener(new android.view.View.OnClickListener({
+                    onClick: function (viewarg) {
+                        try {
+                            var webView = new android.webkit.WebView(CTX);
+                            var webset = webView.getSettings();
+                            webset.setSupportZoom(true);
+                            webset.setJavaScriptEnabled(true);
+                            webset.setAllowContentAccess(true);
+                            webset.setAllowFileAccess(true);
+
+                            webView.setWebChromeClient(new android.webkit.WebChromeClient());
+
+                            webView.setWebViewClient(new android.webkit.WebViewClient());
+
+                            webView.loadUrl(bugReportUrl);
+
+                            new android.app.AlertDialog.Builder(CTX).setView(webView).show();
+
+                        } catch (e) {
+                            error(e);
+                        }
+                    }
+                }));
+
+                leftLayout.addView(bugReportBtn);
+
+
 
                 var helpBtn = new Button(CTX);
 
                 helpBtn.setText(lang.leftWindow.helpBtn);
-                
+
                 helpBtn.setOnClickListener(new android.view.View.OnClickListener({
                     onClick: function (view) {
                         showHelpMenu();
@@ -1968,14 +2062,14 @@ updateModel();
                                     modelName = null;
                                     textureMapLayer = [];
 
-modelEntity = null;
+                                    modelEntity = null;
                                     isMakingModel = false;
                                     theRenderer = Renderer.createHumanoidRenderer();
                                     theSkin = null;
 
-                                   leftWindow.dismiss();
-                                   rightTopWindow.dismiss();
-                                   rightBottomWindow.dismiss();
+                                    leftWindow.dismiss();
+                                    rightTopWindow.dismiss();
+                                    rightBottomWindow.dismiss();
                                 }
                             }));
                             dialog.create();
@@ -2019,12 +2113,12 @@ modelEntity = null;
 
                 var wid = textureSize.x * 2;
                 //screenWidth / 5
-                
-                var hei = textureSize.y * 2 ;
+
+                var hei = textureSize.y * 2;
                 ///screenWidth / 10,
-                
+
                 var arr = [];
-                
+
                 var theLength = wid * hei;
 
                 for (var a = 0; a < theLength; a++) arr.push(-1);
@@ -2032,25 +2126,24 @@ modelEntity = null;
                 var textureMap = new Bitmap.createBitmap(arr, wid, hei, Bitmap.Config.ARGB_8888);
 
                 textureMapBtn = new Button(CTX);
-                
+
                 textureMapBtn.setWidth(wid);
                 textureMapBtn.setHeight(hei);
-                                       
+
                 textureMapLayer = [new Drawable.BitmapDrawable(textureMap)];
 
                 textureMapBtn.setBackgroundDrawable(new Drawable.LayerDrawable(textureMapLayer));
-                
-                textureMapBtn.setLayoutParams(new LinearLayout.LayoutParams(wid, hei ));
-                
-               textureMapBtn.setOnClickListener(new android.view.View.OnClickListener({
+
+                textureMapBtn.setLayoutParams(new LinearLayout.LayoutParams(wid, hei));
+
+                textureMapBtn.setOnClickListener(new android.view.View.OnClickListener({
                     onClick: function (view) {
-              clientMessage( "wid: "+textureMapBtn.getWidth()+" hei: "+
-                textureMapBtn.getHeight() );
-               clientMessage( "x: "+wid+" y: "+hei ); 
+                        clientMessage("wid: " + textureMapBtn.getWidth() + " hei: " + textureMapBtn.getHeight());
+                        clientMessage("x: " + wid + " y: " + hei);
 
                     }
                 }));
-                
+
 
                 rightTopLayout.addView(textureMapBtn);
 
@@ -2078,37 +2171,29 @@ modelEntity = null;
                 modelTreeText.setText(lang.rightBottomWindow.modelTreeText);
 
                 rightBottomLayout.addView(modelTreeText);
+
+                for (var a in modelTree) {
+
+                    var btn1 = new Button(CTX);
+
+                    btn1.setText(modelTree[a].name);
+
+                    btn1.setOnClickListener(new android.view.View.OnClickListener({
+                        onClick: function (view) {
+
+                            selectedBox = modelTree[rightBottomLayout.indexOfChild(view) - 1];
+
+                            setLeftWindow();
+
+                        }
+                    }));
+
+
+
+
+                    rightBottomLayout.addView(btn1);
+                }
                 
-//~////////////
-
-
-                
-                                       
-                            for (var a in modelTree) {
-
-                                var btn1 = new Button(CTX);
-
-                                btn1.setText(modelTree[a].name);
-
-                                btn1.setOnClickListener(new android.view.View.OnClickListener({
-                                    onClick: function (view) {
-
-                                        selectedBox = modelTree[rightBottomLayout.indexOfChild(view) - 1];
-
-                                        setLeftWindow();
-
-                                    }
-                                }));
-                                
-                                
-                                
-                                
-                                rightBottomLayout.addView(btn1);
-                                }
-///////////////                                
-                                
-                                
-
                 rightBottomScroll.addView(rightBottomLayout);
 
                 rightBottomWindow.setContentView(rightBottomScroll);
@@ -2120,11 +2205,11 @@ modelEntity = null;
                 rightBottomWindow.setBackgroundDrawable(new Drawable.ColorDrawable(Color.argb(140, 0, 0, 0)));
 
                 rightBottomWindow.showAtLocation(CTX.getWindow().getDecorView(), Gravity.RIGHT | Gravity.TOP, 0, screenHeight / 2);
-                
-                
-                
+
+
+
                 updateModel();
-                
+
 
             } catch (e) {
 
@@ -2134,7 +2219,44 @@ modelEntity = null;
     }));
 } //showModelEditMenu
 
+////////////////////////////////////////////////
 
+function getBoxTexture(index){
+
+var bitmap = new Bitmap.createBitmap(textureSize.x * 2, textureSize.y * 2, Bitmap.Config.ARGB_8888);
+
+var box = modelTree[index];
+
+var x = box.dimensionX;
+var y = box.dimensionY;
+var z = box.dimensionZ;
+
+var textX = box.textOffsetX;
+var textY = box.textOffsetY;
+
+var canvas = new Canvas(bitmap);
+var paint = new Paint();
+
+var topRect = new Rect(z+textX, textY, z+x+textX, z+textY);
+var bottomRect = new Rect(z+x+textX, textY, z+x+x+textX, z+textY);
+var leftRect = new Rect(textX, z+textY, z+textX, z+y+textY);
+var frontRect = new Rect(z+textX, z+textY, z+x+textX, z+y+textY);
+var rightRect = new Rect(z+x+textX, z+textY, z+x+z+textX, z+y+textY);
+var backRect = new Rect(z+x+z+textX, z+textY, z+x+z+x+textX, z+y+textY);
+
+var arr = [topRect, bottomRect, leftRect, frontRect, leftRect, backRect];
+var color = [Color.RED, Color.BLUE, Color.GREEN, Color.CYAN, Color.YELLOW, Color.MAGENTA];
+
+for(var a in arr){
+	paint.setColor(color[a]);
+	canvas.drawRect(arr[a], paint);
+}
+
+return bitmap;
+
+}
+
+////////////////////////////////////////////////
 
 function spawnModelEntity() {
 
@@ -2171,9 +2293,9 @@ function modelEntityAI() {
 
 
 function newLevel() {
-	
-	clientMessage(lang.newLevelNoti);
-	
+
+    clientMessage(lang.newLevelNoti);
+
     new java.lang.Thread(new java.lang.Runnable({
         run: function () {
 
@@ -2208,8 +2330,8 @@ function useItem(x, y, z, I, b, s, id, bd) {
 
 
 function updateModel() {
-	
-	  if(modelEntity == null) return;
+
+    if (modelEntity == null) return;
 
     function theModel(renderer) {
 
@@ -2231,8 +2353,8 @@ function updateModel() {
         for (var a in modelTree) {
             var m = modelTree[a];
             var modelPart = m.modelPart;
-            
-            eval(modelPart + ".setTextureSize(" +textureSize.x + "," + textureSize.y + ");");
+
+            eval(modelPart + ".setTextureSize(" + textureSize.x + "," + textureSize.y + ");");
 
             eval(modelPart + ".setTextureOffset(" + m.textOffsetX + "," + m.textOffsetY + ",true);");
 
@@ -2246,9 +2368,8 @@ function updateModel() {
     theModel(theRenderer);
 
     Entity.setRenderType(modelEntity, theRenderer.renderType);
-    
-    if(theSkin != null)
-    Entity.setMobSkin(modelEntity, "skin/"+theSkin);
+
+    if (theSkin != null) Entity.setMobSkin(modelEntity, "skin/" + theSkin);
 
 
 }
@@ -2302,8 +2423,7 @@ function FileList(context) {
 
         if (files == null) return false;
 
-        if (path != SDCARD) 
-        folderList.push(".../");
+        if (path != SDCARD) folderList.push(".../");
 
         for (var a in files) {
 
@@ -2314,14 +2434,14 @@ function FileList(context) {
             } else {
 
                 if (lookFor != null) {
-                	
-                
 
-                    if (typeof(lookFor) == "string") {
-   	
-                        if (!fileName2.endsWith(lookFor)){
-                        	                           	
-                        	continue;
+
+
+                    if (typeof (lookFor) == "string") {
+
+                        if (!fileName2.endsWith(lookFor)) {
+
+                            continue;
                         }
 
                     } else if (lookFor instanceof Array) {
@@ -2438,7 +2558,7 @@ function FileList(context) {
             try {
 
                 var fileName = list[position] + "";
-                
+
 
                 if (fileName == ".../") {
 
@@ -2446,7 +2566,7 @@ function FileList(context) {
 
                 } else if (new File(path + fileName).isDirectory()) {
 
-                  
+
                     setPath(path + fileName);
 
                 } else {
