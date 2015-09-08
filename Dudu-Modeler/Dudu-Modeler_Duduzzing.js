@@ -62,6 +62,10 @@ var View = android.view.View;
 
 var isPro =  CTX.getPackageName().equals("net.zhuoweizhang.mcpelauncher.pro");
 
+
+var bugReportUrl = "http://goo.gl/forms/LCb0JyWxz1";
+
+
 var language = java.util.Locale.getDefault().getLanguage();
 
 var tempLang = {
@@ -147,6 +151,8 @@ var tempLang = {
             loadTextureBtn: "Load texture",
             importBtn: "Import",
             exportBtn: "Export",
+            respawnModelEntityBtn: "Respawn model entity",
+            bugReportBtn: "Bug report",
             helpBtn: "Help",
             infoBtn: "Information",
             exitBtn: "Exit"
@@ -264,6 +270,8 @@ canModelEntityStare:{
             loadTextureBtn: "스킨 불러오기",
             importBtn: "불러오기",
             exportBtn: "저장",
+            respawnModelEntityBtn: "모델 엔티티 소환",
+            bugReportBtn: "버그 리포트",
             helpBtn: "도움말",
             infoBtn: "정보",
             exitBtn: "나가기"
@@ -835,7 +843,7 @@ function showHelpDialog(theTitle, theText){
             try {
                 var dialog = new android.app.AlertDialog.Builder(CTX);
 
-                var text = new EditText(CTX);
+                var text = new TextView(CTX);
 
                 text.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, 25);
                 
@@ -901,12 +909,16 @@ var btn = new Button(CTX);
 
 btn.setText(theTitleArray[a]);
 
+btn.setId(a);
+
 btn.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, 20);
                 
 
 btn.setOnClickListener(new android.view.View.OnClickListener({
                     onClick: function (view) {
-                        showHelpDialog(theTitleArray[a], theTextArray[a]);
+
+var index = view.getId();
+                        showHelpDialog(theTitleArray[index], theTextArray[index]);
                         
                     }
                 }));
@@ -1073,21 +1085,21 @@ isMakingModel = false;                    }
                         if (!isVar(name)) {
 
                             toast(lang.errorMessage.string);
-                            (!isEditMode) isMakingModel = false;      
+                            if(!isEditMode) isMakingModel = false;      
                             return;
 
                         }
                         if (isNaN(textX) || isNaN(textY)) {
 
                             toast(lang.errorMessage.int);
-                          (!isEditMode) isMakingModel = false;      
+                          if(!isEditMode) isMakingModel = false;      
 
                             return;
                         }
                         if (textX < 1 || textY < 1) {
 
                             toast(lang.errorMessage.positive);
-                            (!isEditMode) isMakingModel = false;      
+                            if(!isEditMode) isMakingModel = false;      
 
                             return;
                         }
@@ -1853,6 +1865,55 @@ updateModel();
                 }));
 
                 leftLayout.addView(exportBtn);
+                
+                
+                
+                var respawnModelEntityBtn = new Button(CTX);
+
+                respawnModelEntityBtn.setText(lang.leftWindow.respawnModelEntityBtn);
+                
+                respawnModelEntityBtn.setOnClickListener(new android.view.View.OnClickListener({
+                    onClick: function (view) {
+                        spawnModelEntity();
+                        updateModel();
+
+                    }
+                }));
+
+                leftLayout.addView( respawnModelEntityBtn);
+                
+                
+                var bugReportBtn = new Button(CTX);
+
+                bugReportBtn.setText(lang.leftWindow.bugReportBtn );
+                
+                bugReportBtn.setOnClickListener(new android.view.View.OnClickListener({
+    onClick: function(viewarg){
+      try{        
+        var webView = new android.webkit.WebView(CTX);
+        var webset = webView.getSettings();
+        webset.setSupportZoom(true);
+        webset.setJavaScriptEnabled(true);
+        webset.setAllowContentAccess(true);
+        webset.setAllowFileAccess(true);
+        
+        webView.setWebChromeClient(new android.webkit.WebChromeClient());
+        
+        webView.setWebViewClient(new android.webkit.WebViewClient());
+        
+        webView.loadUrl(bugReportUrl);
+        
+        new android.app.AlertDialog.Builder(CTX).setView(webView).show();
+        
+      } catch(e){
+        error(e);
+      }
+    }
+  }));
+
+                leftLayout.addView( bugReportBtn);
+                
+                
 
                 var helpBtn = new Button(CTX);
 
@@ -1907,6 +1968,7 @@ updateModel();
                                     modelName = null;
                                     textureMapLayer = [];
 
+modelEntity = null;
                                     isMakingModel = false;
                                     theRenderer = Renderer.createHumanoidRenderer();
                                     theSkin = null;
@@ -1955,20 +2017,40 @@ updateModel();
 
                 rightTopLayout.addView(textureMapText);
 
-                var wid = screenWidth / 5,
-                    hei = screenWidth / 10,
-                    arr = [],
-                    theLength = wid * hei;
+                var wid = textureSize.x * 2;
+                //screenWidth / 5
+                
+                var hei = textureSize.y * 2 ;
+                ///screenWidth / 10,
+                
+                var arr = [];
+                
+                var theLength = wid * hei;
 
                 for (var a = 0; a < theLength; a++) arr.push(-1);
 
                 var textureMap = new Bitmap.createBitmap(arr, wid, hei, Bitmap.Config.ARGB_8888);
 
                 textureMapBtn = new Button(CTX);
-
+                
+                textureMapBtn.setWidth(wid);
+                textureMapBtn.setHeight(hei);
+                                       
                 textureMapLayer = [new Drawable.BitmapDrawable(textureMap)];
 
                 textureMapBtn.setBackgroundDrawable(new Drawable.LayerDrawable(textureMapLayer));
+                
+                textureMapBtn.setLayoutParams(new LinearLayout.LayoutParams(wid, hei ));
+                
+               textureMapBtn.setOnClickListener(new android.view.View.OnClickListener({
+                    onClick: function (view) {
+              clientMessage( "wid: "+textureMapBtn.getWidth()+" hei: "+
+                textureMapBtn.getHeight() );
+               clientMessage( "x: "+wid+" y: "+hei ); 
+
+                    }
+                }));
+                
 
                 rightTopLayout.addView(textureMapBtn);
 
@@ -2073,7 +2155,6 @@ function modelEntityAI() {
 
     if (ex == 0 && ey == 0 && ez == 0) {
         modelEntity = null;
-        clientMessage("위치000");
         return;
     }
 
@@ -2127,6 +2208,8 @@ function useItem(x, y, z, I, b, s, id, bd) {
 
 
 function updateModel() {
+	
+	  if(modelEntity == null) return;
 
     function theModel(renderer) {
 
@@ -2151,7 +2234,7 @@ function updateModel() {
             
             eval(modelPart + ".setTextureSize(" +textureSize.x + "," + textureSize.y + ");");
 
-            eval(modelPart + ".setTextureOffset(" + m.textOffsetX + "," + m.textOffsetY + ");");
+            eval(modelPart + ".setTextureOffset(" + m.textOffsetX + "," + m.textOffsetY + ",true);");
 
             eval(modelPart + ".addBox(" + m.offsetX + "," + m.offsetY + "," + m.offsetZ + "," + m.dimensionX + "," + m.dimensionY + "," + m.dimensionZ + "," + m.scale + ");");
 
@@ -2232,7 +2315,7 @@ function FileList(context) {
 
                 if (lookFor != null) {
                 	
-                	clientMessage(typeof(lookFor));
+                
 
                     if (typeof(lookFor) == "string") {
    	
@@ -2300,10 +2383,6 @@ function FileList(context) {
 
     this.setPath = function (thePath) {
 
-        clientMessage("path is " + thePath);
-
-
-
         if (thePath == null || thePath.length == 0) {
 
             thePath = SDCARD;
@@ -2312,8 +2391,6 @@ function FileList(context) {
 
 
             var lastChar = thePath.charAt(thePath.split("").length - 2);
-
-            clientMessage("lastChar " + lastChar);
 
             if (lastChar != "/") {
 
@@ -2392,15 +2469,6 @@ function FileList(context) {
     this.theListView.setOnItemClickListener(listener);
 
 }
-
-
-
-
-
-
-
-
-
 
 
 
