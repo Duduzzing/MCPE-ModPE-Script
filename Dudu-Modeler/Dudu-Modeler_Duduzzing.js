@@ -148,6 +148,8 @@ var tempLang = {
             clearAllBtn: "Clear all",
             copyBtn: "Copy",
             pasteBtn: "Paste",
+            chooseTheBoxToCopy: "Choose the box to copy",
+            copyTheBoxFirst: "Copy the box first",
             showcaseBtn: "Showcase",
             editProjectBtn: "Edit project",
             loadTextureBtn: "Load texture",
@@ -267,6 +269,8 @@ var tempLang = {
             clearAllBtn: "모두 제거",
             copyBtn: "복사",
             pasteBtn: "붙여넣기",
+            chooseTheBoxToCopy: "복사할 박스를 선택해주세요",
+            copyTheBoxFirst: "먼저 박스를 복사해 주세요",
             showcaseBtn: "진열 모드",
             editProjectBtn: "프로젝트 수정",
             loadTextureBtn: "스킨 불러오기",
@@ -635,6 +639,10 @@ function deleteBox(index) {
         resetLeftWindow();
 
         updateModel();
+        
+        textureMapLayer.splice(index);
+
+        updateTextureMap();
 
     } catch (err) {
 
@@ -680,6 +688,10 @@ function deleteAllBoxes() {
                 resetLeftWindow();
 
                 updateModel();
+                
+                resetTextureMap();
+                
+        	updateTextureMap();
 
             }
         }));
@@ -724,14 +736,18 @@ function saveProject() {
     new java.lang.Thread(new java.lang.Runnable({
         run: function () {
             try {
-                file = java.io.File(SDCARD + "/Duduzzing/Dudu-Modeler/" + modelName + "/" + modelName + ".dm");
-
+            	var fileDir = SDCARD + "/Duduzzing/Dudu-Modeler/" + modelName + "/" + modelName + ".dm";
+                var file = new File(fileDir);
+                
+                var fileDir2;
+                
 
                 var theCount = 1;
 
                 while (true) {
                     if (file.exists()) {
-                        file = java.io.File(SDCARD + "/Duduzzing/Dudu-Modeler/" + modelName + "/" + modelName + "_" + theCount + ".dm");
+                    	fileDir2 = SDCARD + "/Duduzzing/Dudu-Modeler/" + modelName + "/" + modelName + "_" + theCount;
+                        file = new File(fileDir2+ ".dm");
                         theCount++;
                     } else {
                         break;
@@ -759,6 +775,62 @@ function saveProject() {
                 w.close();
                 ow.close();
                 fos.close();
+                
+                
+		var fo = new java.io.FileOutputStream(fileDir2+".png");
+		
+        	var bitmap = new Bitmap.createBitmap(textureSize.x, textureSize.y, Bitmap.Config.ARGB_8888);
+        	
+        	var canvas = new Canvas(bitmap);
+        	
+        	var matrix = new android.graphics.Matrix();
+        	
+        	for(var a = 1; a < textureMapLayer.length; a++){
+        		canvas.drawBimap(textureMapLayer[a], matrix, null);
+        	}
+
+        	bitmap.compress(Bitmap.CompressFormat.PNG, 100, fo);
+        	
+        	
+        var toWrite = [
+        "function "+modelName+"Model (renderer){",
+        "var Model = renderer.getModel();",
+        "var head = Model.getPart('head');",
+        "var body = Model.getPart('body');",
+        "var rightArm = Model.getPart('rightArm');",
+        "var leftArm = Model.getPart('leftArm');",
+        "var rightLeg = Model.getPart('rightLeg');",
+        "var leftLeg = Model.getPart('leftLeg');",
+        "head.clear();",
+        "body.clear();",
+        "rightArm.clear();",
+        "leftArm.clear();",
+        "rightLeg.clear();",
+        "leftLeg.clear();",
+        "var modelTree = "+uneval(modelTree)+";",
+        "for (var a in modelTree) {",
+        "var m = modelTree[a];",
+        "var modelPart = m.modelPart;",
+        "eval(modelPart + '.setTextureSize(' + textureSize.x + ',' + textureSize.y + ');');",
+        "eval(modelPart + '.setTextureOffset' + m.textOffsetX + ',' + m.textOffsetY + ,'true);');",
+        "eval(modelPart + '.addBox(' + m.offsetX + ',' + m.offsetY + ',' + m.offsetZ + ',' + m.dimensionX + ',' + m.dimensionY + ',' + m.dimensionZ + ',' + m.scale + ');');",
+        "eval(modelPart + '.setRotationPoint(' + m.rotationX + ',' + m.rotationY + ',' + m.rotationZ + ');');",
+        "}",
+        "}",
+        "var "+modelName+"Renderer = Renderer.createHumanoidRenderer();",
+        modelName+"Model(" + modelName + "Renderer)"
+        ];
+        
+        var fos2 = new java.io.FileOutputStream(new File(fileDir2+".js"));
+        var ow2 = new java.io.OutputStreamWriter(fos);
+        var w2 = new java.io.BufferedWriter(ow);
+        for(var a in toWrite){
+            w.write(toWrite[a] + "\n");
+        }
+        w2.close();
+        ow2.close();
+        fos2.close();
+
 
             } catch (e) {
 
@@ -812,6 +884,8 @@ function loadProject(path) {
                         try {
 
                             for (var a in modelTree) {
+                            	
+                            	textureMapLayer.push(getBoxTexture[a]);
 
                                 var btn = new Button(CTX);
 
@@ -826,10 +900,14 @@ function loadProject(path) {
 
                                     }
                                 }));
-
+                                
                                 rightBottomLayout.addView(btn);
 
                             }
+                            
+                            updateTextureMap();
+                            
+                            
                         } catch (e) {
                             error(e);
                         }
@@ -874,7 +952,6 @@ function loadTexture(skinPath, skinName) {
 
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, fo);
 
-
         Entity.setMobSkin(modelEntity, "skin/" + skinName);
 
     } catch (e) {
@@ -896,7 +973,7 @@ function showcase() {
 
     btn.setBackgroundDrawable(new Drawable.ColorDrawable(Color.TRANSPARENT));
 
-    btn.setTextColor(Color.argb(120, 255, 255, 255));
+    btn.setTextColor(Color.argb(150, 255, 255, 255));
 
     btn.setText("DM");
 
@@ -914,7 +991,7 @@ function showcase() {
 
     showcaseWindow = new PopupWindow(btn, screenWidth / 10, screenWidth / 10);
 
-    showcaseWindow.setBackgroundDrawable(new Drawable.ColorDrawable(Color.argb(120, 0, 0, 0)));
+    showcaseWindow.setBackgroundDrawable(new Drawable.ColorDrawable(Color.argb(150, 0, 0, 0)));
 
     showcaseWindow.showAtLocation(CTX.getWindow().getDecorView(), Gravity.RIGHT | Gravity.BOTTOM, 0, 0);
 
@@ -936,13 +1013,10 @@ function showHelpDialog(theTitle, theText) {
 
                 text.setText(theText);
 
-
-
                 dialog.setTitle(theTitle);
 
                 dialog.setView(text);
 
-                dialog.setNegativeButton(lang.leftWindow.exitBtn, null);
 
                 dialog.create();
                 dialog.show();
@@ -1014,15 +1088,9 @@ function showHelpMenu() {
 
         }
 
-
-
-
         addBtn(theTitleArray, theTextArray);
-
-
-
+        
         scroll.addView(layout);
-
 
         helpWindow = new PopupWindow(scroll, screenWidth / 2, screenHeight / 2);
 
@@ -1219,227 +1287,6 @@ function showStartMenu(isEditMode) {
 
 
 
-function customEditText(hint, title, type, isInt, isFloat, isPositive) {
-
-    try {
-
-        if (hint != "") title = title + ": " + hint;
-
-        var btn = new Button(CTX);
-
-        btn.setGravity(Gravity.LEFT | Gravity.CENTER);
-
-        var params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-
-        params.setMargins(0, 2, 0, 2);
-
-        btn.setLayoutParams(params);
-
-        var paint = new Paint();
-
-        paint.setStyle(Paint.Style.STROKE);
-
-        paint.setStrokeWidth(3);
-
-        paint.setColor(Color.argb(130, 255, 255, 255));
-
-        var bit1 = Bitmap.createBitmap(screenWidth / 4, 18, Bitmap.Config.ARGB_8888);
-
-        var rect = new android.graphics.Rect(-1, -1, bit1.getWidth(), bit1.getHeight());
-
-        var canvas = new Canvas(bit1);
-
-        canvas.drawRect(rect, paint);
-
-        btn.setBackgroundDrawable(new Drawable.BitmapDrawable(bit1));
-
-        btn.setTextColor(Color.WHITE);
-
-        btn.setText(hint);
-
-        btn.setOnClickListener(new android.view.View.OnClickListener({
-            onClick: function (view) {
-                try {
-
-                    if (selectedBox == null) return;
-
-                    var dialog = new android.app.AlertDialog.Builder(CTX);
-
-                    dialog.setTitle(title);
-
-                    var scroll = new android.widget.ScrollView(CTX);
-
-                    var edit = new EditText(CTX);
-                    if (btn.getText() != hint) edit.setHint(btn.getText());
-
-                    scroll.addView(edit);
-
-                    dialog.setView(scroll);
-
-                    dialog.setPositiveButton(lang.yes, new android.content.DialogInterface.OnClickListener({
-                        onClick: function () {
-
-                            try {
-
-                                var text = edit.getText() + "";
-
-                                if (text == "") return;
-
-                                if (isInt) {
-                                    text = Math.floor(parseInt(text));
-
-                                    if (isNaN(text)) {
-
-                                        toast(lang.errorMessage.int);
-
-                                        return;
-
-                                    }
-                                    if (isPositive && text < 0) {
-
-                                        toast(lang.errorMessage.positive);
-
-                                        return;
-
-                                    }
-
-                                } else if (isFloat) {
-                                    text = parseFloat(text);
-
-                                    if (isNaN(text)) {
-
-                                        toast(lang.errorMessage.intOrFloat);
-
-                                        return;
-
-                                    }
-
-                                    if (isPositive && text < 0) {
-
-                                        toast(lang.errorMessage.positive);
-
-                                        return;
-
-                                    }
-
-                                } else if (!isVar(text)) {
-                                    toast(lang.errorMessage.string);
-
-                                    return;
-
-                                }
-
-                                eval("selectedBox." + type + " = text;");
-
-                                btn.setText(text + "");
-
-                                updateModel();
-
-                                if (type == "name") rightBottomLayout.getChildAt(modelTree.indexOf(selectedBox) + 1).setText(text);
-
-                            } catch (r) {
-
-                                error(r);
-                            }
-
-                        }
-                    }));
-                    dialog.create();
-                    dialog.show();
-
-                } catch (err) {
-
-                    error(err);
-                }
-            }
-        }));
-
-        return btn;
-
-    } catch (e) {
-
-        error(e);
-    }
-
-
-}
-
-
-function customSpinner() {
-    try {
-
-        var spinner = new android.widget.Button(CTX);
-
-        spinner.setText("Model part");
-
-        spinner.setOnClickListener(new android.view.View.OnClickListener({
-            onClick: function (view) {
-                try {
-                    if (selectedBox != null) {
-
-                        var window = new PopupWindow(CTX);
-
-                        var listView = new ListView(CTX);
-
-                        var items = [lang.modelPart.head, lang.modelPart.body, lang.modelPart.rightArm, lang.modelPart.leftArm, lang.modelPart.rightLeg, lang.modelPart.leftLeg];
-
-                        var adapter = new android.widget.ArrayAdapter(CTX, android.R.layout.simple_list_item_1, items);
-
-                        listView.setAdapter(adapter);
-
-                        var listener = new android.widget.AdapterView.OnItemClickListener({
-                            onItemClick: function (parent, view, position, id) {
-                                try {
-
-                                    var text = view.getText() + "";
-
-                                    selectedBox.modelPart = text;
-
-                                    spinner.setText(text);
-
-                                    updateModel();
-
-                                    window.dismiss();
-                                } catch (e) {
-
-                                    error(e);
-                                }
-
-                            }
-                        });
-
-                        listView.setOnItemClickListener(listener);
-
-                        window.setFocusable(true);
-
-                        window.setWidth(screenWidth / 4);
-
-                        window.setHeight(android.view.WindowManager.LayoutParams.WRAP_CONTENT);
-
-                        window.setContentView(listView);
-
-                        window.showAtLocation(CTX.getWindow().getDecorView(), Gravity.CENTER, 0, 0);
-
-
-                    }
-
-                } catch (e) {
-                    error(e);
-                }
-
-
-            }
-        }));
-
-        return spinner;
-    } catch (e) {
-
-        error(e);
-    }
-}
-
-
-
 
 function showModelEditMenu() {
     CTX.runOnUiThread(new java.lang.Runnable({
@@ -1617,7 +1464,7 @@ function showModelEditMenu() {
                         
                         textureMapLayer.push(getBoxTexture(modelTree.length - 1));
                         
-                        textureMapBtn.setBackgroundDrawable(new Drawable.LayerDrawable(textureMapLayer));
+                        updateTextureMap();
                         
                         ////////////////////////////////////////////////////////////////////////////
                         
@@ -1663,11 +1510,9 @@ function showModelEditMenu() {
                     onClick: function (view) {
                         try {
                             if (selectedBox == null) {
-
-                                toast("Choose the box to copy");
+                                toast(lang.leftWindow.chooseTheBoxToCopy);
                                 return;
                             }
-
 
                             copyBox(selectedBox);
 
@@ -1690,7 +1535,8 @@ function showModelEditMenu() {
 
                             if (cloneBox == null) {
 
-                                toast("Copy the box first");
+                                toast(lang.leftWindow.copyTheBoxFirst );
+                                
                                 return;
                             }
 
@@ -1732,6 +1578,10 @@ function showModelEditMenu() {
                             rightBottomLayout.addView(btn);
 
                             setLeftWindow();
+                            
+                            textureMapLayer.push(getBoxTexture(modelTree.length - 1));
+                            
+                            updateTextureMap();
 
                         } catch (err) {
                             error(err);
@@ -1741,20 +1591,6 @@ function showModelEditMenu() {
                 }));
 
                 leftLayout.addView(pasteBtn);
-
-                var showcaseBtn = new Button(CTX);
-
-                showcaseBtn.setText(lang.leftWindow.showcaseBtn);
-
-                showcaseBtn.setOnClickListener(new android.view.View.OnClickListener({
-                    onClick: function (view) {
-
-                        showcase();
-
-                    }
-                }));
-
-                leftLayout.addView(showcaseBtn);
 
                 var loadTextureBtn = new Button(CTX);
 
@@ -1924,7 +1760,6 @@ function showModelEditMenu() {
 
                             fileList.setPath(SDCARD);
 
-
                             fileListLayout.addView(fileList.theListView);
 
                             fileListWindow.setContentView(fileListLayout);
@@ -1961,6 +1796,19 @@ function showModelEditMenu() {
                 leftLayout.addView(exportBtn);
 
 
+                var showcaseBtn = new Button(CTX);
+
+                showcaseBtn.setText(lang.leftWindow.showcaseBtn);
+
+                showcaseBtn.setOnClickListener(new android.view.View.OnClickListener({
+                    onClick: function (view) {
+
+                        showcase();
+
+                    }
+                }));
+
+                leftLayout.addView(showcaseBtn);
 
                 var respawnModelEntityBtn = new Button(CTX);
 
@@ -1982,7 +1830,7 @@ function showModelEditMenu() {
                 bugReportBtn.setText(lang.leftWindow.bugReportBtn);
 
                 bugReportBtn.setOnClickListener(new android.view.View.OnClickListener({
-                    onClick: function (viewarg) {
+                    onClick: function (view) {
                         try {
                             var webView = new android.webkit.WebView(CTX);
                             var webset = webView.getSettings();
@@ -2222,7 +2070,7 @@ function showModelEditMenu() {
 ////////////////////////////////////////////////
 
 function getBoxTexture(index){
-
+try{
 var bitmap = new Bitmap.createBitmap(textureSize.x * 2, textureSize.y * 2, Bitmap.Config.ARGB_8888);
 
 var box = modelTree[index];
@@ -2254,7 +2102,21 @@ for(var a in arr){
 
 return bitmap;
 
+}catch(err){
+	error(err);
 }
+
+}
+
+function updateTextureMap(){
+        textureMapBtn.setBackgroundDrawable(new Drawable.LayerDrawable(textureMapLayer));
+}
+
+function resetTextureMap(){
+	textureMapLayer = [textureMapLayer[0]];
+	updateTextureMap();
+}
+
 
 ////////////////////////////////////////////////
 
@@ -2382,6 +2244,239 @@ function attackHook(a, v) {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+function customEditText(hint, title, type, isInt, isFloat, isPositive) {
+
+    try {
+
+        if (hint != "") title = title + ": " + hint;
+
+        var btn = new Button(CTX);
+
+        btn.setGravity(Gravity.LEFT | Gravity.CENTER);
+
+        var params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+
+        params.setMargins(0, 2, 0, 2);
+
+        btn.setLayoutParams(params);
+
+        var paint = new Paint();
+
+        paint.setStyle(Paint.Style.STROKE);
+
+        paint.setStrokeWidth(3);
+
+        paint.setColor(Color.argb(130, 255, 255, 255));
+
+        var bit1 = Bitmap.createBitmap(screenWidth / 4, 18, Bitmap.Config.ARGB_8888);
+
+        var rect = new android.graphics.Rect(-1, -1, bit1.getWidth(), bit1.getHeight());
+
+        var canvas = new Canvas(bit1);
+
+        canvas.drawRect(rect, paint);
+
+        btn.setBackgroundDrawable(new Drawable.BitmapDrawable(bit1));
+
+        btn.setTextColor(Color.WHITE);
+
+        btn.setText(hint);
+
+        btn.setOnClickListener(new android.view.View.OnClickListener({
+            onClick: function (view) {
+                try {
+
+                    if (selectedBox == null) return;
+
+                    var dialog = new android.app.AlertDialog.Builder(CTX);
+
+                    dialog.setTitle(title);
+
+                    var scroll = new android.widget.ScrollView(CTX);
+
+                    var edit = new EditText(CTX);
+                    if (btn.getText() != hint) edit.setHint(btn.getText());
+
+                    scroll.addView(edit);
+
+                    dialog.setView(scroll);
+
+                    dialog.setPositiveButton(lang.yes, new android.content.DialogInterface.OnClickListener({
+                        onClick: function () {
+
+                            try {
+
+                                var text = edit.getText() + "";
+
+                                if (text == "") return;
+
+                                if (isInt) {
+                                    text = Math.floor(parseInt(text));
+
+                                    if (isNaN(text)) {
+
+                                        toast(lang.errorMessage.int);
+
+                                        return;
+
+                                    }
+                                    if (isPositive && text < 0) {
+
+                                        toast(lang.errorMessage.positive);
+
+                                        return;
+
+                                    }
+
+                                } else if (isFloat) {
+                                    text = parseFloat(text);
+
+                                    if (isNaN(text)) {
+
+                                        toast(lang.errorMessage.intOrFloat);
+
+                                        return;
+
+                                    }
+
+                                    if (isPositive && text < 0) {
+
+                                        toast(lang.errorMessage.positive);
+
+                                        return;
+
+                                    }
+
+                                } else if (!isVar(text)) {
+                                    toast(lang.errorMessage.string);
+
+                                    return;
+
+                                }
+
+                                eval("selectedBox." + type + " = text;");
+
+                                btn.setText(text + "");
+
+                                updateModel();
+                                
+                        	textureMapLayer[modelTree.indexOf(selectedBox)] = getBoxTexture(modelTree.indexOf(selectedBox));
+                        
+                        	updateTextureMap();
+
+                                if (type == "name") rightBottomLayout.getChildAt(modelTree.indexOf(selectedBox) + 1).setText(text);
+
+                            } catch (r) {
+
+                                error(r);
+                            }
+
+                        }
+                    }));
+                    dialog.create();
+                    dialog.show();
+
+                } catch (err) {
+
+                    error(err);
+                }
+            }
+        }));
+
+        return btn;
+
+    } catch (e) {
+
+        error(e);
+    }
+
+
+}
+
+
+function customSpinner() {
+    try {
+
+        var spinner = new android.widget.Button(CTX);
+
+        spinner.setText("Model part");
+
+        spinner.setOnClickListener(new android.view.View.OnClickListener({
+            onClick: function (view) {
+                try {
+                    if (selectedBox != null) {
+
+                        var window = new PopupWindow(CTX);
+
+                        var listView = new ListView(CTX);
+
+                        var items = [lang.modelPart.head, lang.modelPart.body, lang.modelPart.rightArm, lang.modelPart.leftArm, lang.modelPart.rightLeg, lang.modelPart.leftLeg];
+
+                        var adapter = new android.widget.ArrayAdapter(CTX, android.R.layout.simple_list_item_1, items);
+
+                        listView.setAdapter(adapter);
+
+                        var listener = new android.widget.AdapterView.OnItemClickListener({
+                            onItemClick: function (parent, view, position, id) {
+                                try {
+
+                                    var text = view.getText() + "";
+
+                                    selectedBox.modelPart = text;
+
+                                    spinner.setText(text);
+
+                                    updateModel();
+
+                                    window.dismiss();
+                                } catch (e) {
+
+                                    error(e);
+                                }
+
+                            }
+                        });
+
+                        listView.setOnItemClickListener(listener);
+
+                        window.setFocusable(true);
+
+                        window.setWidth(screenWidth / 4);
+
+                        window.setHeight(android.view.WindowManager.LayoutParams.WRAP_CONTENT);
+
+                        window.setContentView(listView);
+
+                        window.showAtLocation(CTX.getWindow().getDecorView(), Gravity.CENTER, 0, 0);
+
+
+                    }
+
+                } catch (e) {
+                    error(e);
+                }
+
+
+            }
+        }));
+
+        return spinner;
+    } catch (e) {
+
+        error(e);
+    }
+}
 
 
 
