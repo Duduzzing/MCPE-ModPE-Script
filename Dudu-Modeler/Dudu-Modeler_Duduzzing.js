@@ -443,8 +443,9 @@ var cloneBox = null;
 var theRenderer = Renderer.createHumanoidRenderer();
 
 var theSkin = null;
-//the skin dir
+//the skin name
 
+var theSkinDir = null;
 /////////////////////////////////////////////////////////////
 
 
@@ -640,7 +641,7 @@ function deleteBox(index) {
 
         updateModel();
         
-        textureMapLayer.splice(index);
+        textureMapLayer.splice(index+1);
 
         updateTextureMap();
 
@@ -682,8 +683,6 @@ function deleteAllBoxes() {
                 modelTree = [];
 
                 selectedBox = null;
-
-                textureMapLayer = [];
 
                 resetLeftWindow();
 
@@ -736,18 +735,16 @@ function saveProject() {
     new java.lang.Thread(new java.lang.Runnable({
         run: function () {
             try {
-            	var fileDir = SDCARD + "/Duduzzing/Dudu-Modeler/" + modelName + "/" + modelName + ".dm";
-                var file = new File(fileDir);
-                
-                var fileDir2;
-                
+            	var fileDir = SDCARD + "/Duduzzing/Dudu-Modeler/" + modelName + "/" + modelName;
+                var file = new File(fileDir+".dm");
+
 
                 var theCount = 1;
 
                 while (true) {
                     if (file.exists()) {
-                    	fileDir2 = SDCARD + "/Duduzzing/Dudu-Modeler/" + modelName + "/" + modelName + "_" + theCount;
-                        file = new File(fileDir2+ ".dm");
+                    	fileDir = SDCARD + "/Duduzzing/Dudu-Modeler/" + modelName + "/" + modelName + "_" + theCount;
+                        file = new File(fileDir+ ".dm");
                         theCount++;
                     } else {
                         break;
@@ -777,7 +774,7 @@ function saveProject() {
                 fos.close();
                 
                 
-		var fo = new java.io.FileOutputStream(fileDir2+".png");
+		var fo = new java.io.FileOutputStream(new File(fileDir+".png"));
 		
         	var bitmap = new Bitmap.createBitmap(textureSize.x, textureSize.y, Bitmap.Config.ARGB_8888);
         	
@@ -785,8 +782,10 @@ function saveProject() {
         	
         	var matrix = new android.graphics.Matrix();
         	
-        	for(var a = 1; a < textureMapLayer.length; a++){
-        		canvas.drawBimap(textureMapLayer[a], matrix, null);
+        	for(var a = 0; a < modelTree.length; a++){
+        		        		
+        		canvas.drawBitmap( getBoxTexture(a,1) , matrix, null);
+        	        	
         	}
 
         	bitmap.compress(Bitmap.CompressFormat.PNG, 100, fo);
@@ -808,24 +807,25 @@ function saveProject() {
         "rightLeg.clear();",
         "leftLeg.clear();",
         "var modelTree = "+uneval(modelTree)+";",
+        "var textureSize = "+uneval(textureSize)+";",
         "for (var a in modelTree) {",
         "var m = modelTree[a];",
         "var modelPart = m.modelPart;",
         "eval(modelPart + '.setTextureSize(' + textureSize.x + ',' + textureSize.y + ');');",
-        "eval(modelPart + '.setTextureOffset' + m.textOffsetX + ',' + m.textOffsetY + ,'true);');",
+        "eval(modelPart + '.setTextureOffset' + m.textOffsetX + ',' + m.textOffsetY + ', true);');",
         "eval(modelPart + '.addBox(' + m.offsetX + ',' + m.offsetY + ',' + m.offsetZ + ',' + m.dimensionX + ',' + m.dimensionY + ',' + m.dimensionZ + ',' + m.scale + ');');",
         "eval(modelPart + '.setRotationPoint(' + m.rotationX + ',' + m.rotationY + ',' + m.rotationZ + ');');",
         "}",
         "}",
         "var "+modelName+"Renderer = Renderer.createHumanoidRenderer();",
-        modelName+"Model(" + modelName + "Renderer)"
+        modelName+"Model(" + modelName + "Renderer);"
         ];
         
-        var fos2 = new java.io.FileOutputStream(new File(fileDir2+".js"));
-        var ow2 = new java.io.OutputStreamWriter(fos);
-        var w2 = new java.io.BufferedWriter(ow);
+        var fos2 = new java.io.FileOutputStream(new File(fileDir+".js"));
+        var ow2 = new java.io.OutputStreamWriter(fos2);
+        var w2 = new java.io.BufferedWriter(ow2);
         for(var a in toWrite){
-            w.write(toWrite[a] + "\n");
+            w2.write(toWrite[a] + "\n");
         }
         w2.close();
         ow2.close();
@@ -925,13 +925,19 @@ function loadProject(path) {
 
 }
 
-function loadModelBase(modelBase) {
+function loadModelBase(model) {
+	try{
+	
+	  var modelBase = eval(uneval(model));
 
 
     modelName = modelBase.name;
     textureSize.x = modelBase.textureSize.x;
     textureSize.y = modelBase.textureSize.y;
     modelTree = modelBase.model;
+    }catch(err){
+    	error(err);
+    	}
 
 }
 
@@ -949,6 +955,12 @@ function loadTexture(skinPath, skinName) {
         var fo = new java.io.FileOutputStream(dstPath);
 
         var bitmap = BitmapFactory.decodeFile(skinPath + skinName);
+        
+        textureMapLayer[0] = Drawable.BitmapDrawable( Bitmap.createScaledBitmap(bitmap, bitmap.getWidth()*2, bitmap.getHeight()*2,false));
+        
+        textureMapLayer[0].setAlpha(150);
+        
+        updateTextureMap();
 
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, fo);
 
@@ -984,7 +996,7 @@ function showcase() {
 
             showcaseWindow.dismiss();
 
-            showModelEditMenu();
+            showModelEditMenu(true);
 
         }
     }));
@@ -1092,7 +1104,7 @@ function showHelpMenu() {
         
         scroll.addView(layout);
 
-        helpWindow = new PopupWindow(scroll, screenWidth / 2, screenHeight / 2);
+        helpWindow = new PopupWindow(scroll, screenWidth / 2, android.view.WindowManager.LayoutParams.WRAP_CONTENT );
 
         helpWindow.setFocusable(true);
 
@@ -1104,6 +1116,47 @@ function showHelpMenu() {
     } catch (err) {
         error(err);
     }
+
+}
+
+
+
+function showBigTextureMap(){
+
+var window;
+
+var btn = new Button(CTX);
+
+var layer = textureMapLayer.slice();
+
+for(var a in layer){
+var bit = layer[a].getBitmap();
+
+bit.setWidth(screenWidth);
+bit.setHeight(screenHeight);
+
+layer[a] = new Drawable.BitmapDrawable(bit);
+
+}
+
+btn.setBackgroundDrawable(new Drawable.LayerDrawable(layer));
+
+btn.setOnClickListener(new android.view.View.OnClickListener({
+                    onClick: function (view) {
+
+window.dismiss();
+
+}}));
+
+
+	
+window = new PopupWindow(btn, screenWidth, screenHeight );
+
+window.setFocusable(true);
+
+window.setBackgroundDrawable(new Drawable.ColorDrawable(Color.argb(200, 0, 0, 0)));
+
+window.showAtLocation(CTX.getWindow().getDecorView(), Gravity.CENTER, 0, 0);
 
 }
 
@@ -1288,7 +1341,7 @@ function showStartMenu(isEditMode) {
 
 
 
-function showModelEditMenu() {
+function showModelEditMenu(isShowcase) {
     CTX.runOnUiThread(new java.lang.Runnable({
         run: function () {
             try {
@@ -1960,11 +2013,9 @@ function showModelEditMenu() {
                 rightTopLayout.addView(textureMapText);
 
                 var wid = textureSize.x * 2;
-                //screenWidth / 5
-
-                var hei = textureSize.y * 2;
-                ///screenWidth / 10,
-
+                
+                var hei = textureSize.y * 2;                
+                
                 var arr = [];
 
                 var theLength = wid * hei;
@@ -1977,8 +2028,17 @@ function showModelEditMenu() {
 
                 textureMapBtn.setWidth(wid);
                 textureMapBtn.setHeight(hei);
+                
+                if(isShowcase != true){
 
                 textureMapLayer = [new Drawable.BitmapDrawable(textureMap)];
+                
+                for(var a in modelTree){
+                	
+                	 textureMapLayer.push(getBoxTexture(a));                	
+                	
+                	}
+                	}
 
                 textureMapBtn.setBackgroundDrawable(new Drawable.LayerDrawable(textureMapLayer));
 
@@ -1986,8 +2046,8 @@ function showModelEditMenu() {
 
                 textureMapBtn.setOnClickListener(new android.view.View.OnClickListener({
                     onClick: function (view) {
-                        clientMessage("wid: " + textureMapBtn.getWidth() + " hei: " + textureMapBtn.getHeight());
-                        clientMessage("x: " + wid + " y: " + hei);
+//////////////show the bigger texture map//////////////////////////
+showBigTextureMap();
 
                     }
                 }));
@@ -1999,7 +2059,7 @@ function showModelEditMenu() {
 
                 rightTopWindow.setWidth(screenWidth / 4);
 
-                rightTopWindow.setHeight(screenHeight / 2);
+                rightTopWindow.setHeight(screenHeight / 3);
 
                 rightTopWindow.setBackgroundDrawable(new Drawable.ColorDrawable(Color.argb(120, 0, 0, 0)));
 
@@ -2048,7 +2108,7 @@ function showModelEditMenu() {
 
                 rightBottomWindow.setWidth(screenWidth / 4);
 
-                rightBottomWindow.setHeight(screenHeight / 2);
+                rightBottomWindow.setHeight(screenHeight * (2/3));
 
                 rightBottomWindow.setBackgroundDrawable(new Drawable.ColorDrawable(Color.argb(140, 0, 0, 0)));
 
@@ -2069,30 +2129,36 @@ function showModelEditMenu() {
 
 ////////////////////////////////////////////////
 
-function getBoxTexture(index){
+function getBoxTexture(index, scale){
 try{
+
+if(scale == undefined)
+scale = 2;
+
+
 var bitmap = new Bitmap.createBitmap(textureSize.x * 2, textureSize.y * 2, Bitmap.Config.ARGB_8888);
 
 var box = modelTree[index];
 
-var x = box.dimensionX;
-var y = box.dimensionY;
-var z = box.dimensionZ;
+var x = box.dimensionX *scale;
+var y = box.dimensionY *scale;
+var z = box.dimensionZ *scale;
 
 var textX = box.textOffsetX;
 var textY = box.textOffsetY;
 
 var canvas = new Canvas(bitmap);
 var paint = new Paint();
+paint.setAlpha(150);
 
-var topRect = new Rect(z+textX, textY, z+x+textX, z+textY);
-var bottomRect = new Rect(z+x+textX, textY, z+x+x+textX, z+textY);
-var leftRect = new Rect(textX, z+textY, z+textX, z+y+textY);
-var frontRect = new Rect(z+textX, z+textY, z+x+textX, z+y+textY);
-var rightRect = new Rect(z+x+textX, z+textY, z+x+z+textX, z+y+textY);
-var backRect = new Rect(z+x+z+textX, z+textY, z+x+z+x+textX, z+y+textY);
+var topRect = new Rect(z+textX*scale, textY*scale , z+x+textX *scale , z+textY *scale );
+var bottomRect = new Rect(z+x+textX *scale , textY *scale , z+x+x+textX *scale , z+textY *scale );
+var rightRect = new Rect(textX *scale , z+textY *scale , z+textX *scale , z+y+textY *scale );
+var frontRect = new Rect(z+textX *scale , z+textY *scale , z+x+textX *scale , z+y+textY *scale );
+var leftRect = new Rect(z+x+textX *scale , z+textY *scale , z+x+z+textX *scale , z+y+textY *scale );
+var backRect = new Rect(z+x+z+textX *scale , z+textY *scale , z+x+z+x+textX *scale , z+y+textY *scale );
 
-var arr = [topRect, bottomRect, leftRect, frontRect, leftRect, backRect];
+var arr = [topRect, bottomRect, rightRect, frontRect, leftRect, backRect];
 var color = [Color.RED, Color.BLUE, Color.GREEN, Color.CYAN, Color.YELLOW, Color.MAGENTA];
 
 for(var a in arr){
@@ -2100,7 +2166,10 @@ for(var a in arr){
 	canvas.drawRect(arr[a], paint);
 }
 
+if(scale == 1)
 return bitmap;
+else
+return new Drawable.BitmapDrawable(bitmap);
 
 }catch(err){
 	error(err);
@@ -2109,8 +2178,12 @@ return bitmap;
 }
 
 function updateTextureMap(){
+	try{
         textureMapBtn.setBackgroundDrawable(new Drawable.LayerDrawable(textureMapLayer));
-}
+}catch(e){
+	error(e);
+	}
+	}
 
 function resetTextureMap(){
 	textureMapLayer = [textureMapLayer[0]];
@@ -2371,7 +2444,7 @@ function customEditText(hint, title, type, isInt, isFloat, isPositive) {
 
                                 updateModel();
                                 
-                        	textureMapLayer[modelTree.indexOf(selectedBox)] = getBoxTexture(modelTree.indexOf(selectedBox));
+                        	textureMapLayer[modelTree.indexOf(selectedBox)+1] = getBoxTexture(modelTree.indexOf(selectedBox));
                         
                         	updateTextureMap();
 
@@ -2684,11 +2757,3 @@ function FileList(context) {
     this.theListView.setOnItemClickListener(listener);
 
 }
-
-
-
-
-
-
-
-
