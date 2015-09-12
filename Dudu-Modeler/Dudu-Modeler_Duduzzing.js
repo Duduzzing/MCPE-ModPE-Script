@@ -6,11 +6,13 @@
  * All rights deserved
  * 
  */
-var version = "1.0";
+
 
 var SDCARD = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
 
 var CTX = com.mojang.minecraftpe.MainActivity.currentMainActivity.get();
+
+var PECTX = CTX.createPackageContext("com.mojang.minecraftpe", android.content.Context.CONTEXT_IGNORE_SECURITY);
 
 var tempScreenWidth = CTX.getWindowManager().getDefaultDisplay().getWidth();
 
@@ -62,7 +64,9 @@ var View = android.view.View;
 
 var isPro = CTX.getPackageName().equals("net.zhuoweizhang.mcpelauncher.pro");
 
+
 var bugReportUrl = "http://goo.gl/forms/LCb0JyWxz1";
+
 
 var language = java.util.Locale.getDefault().getLanguage();
 
@@ -176,7 +180,7 @@ var tempLang = {
             },
             canModelEntityStare: {
                 title: "Can I make the model entity to stare only one spot?",
-                text: "Just hold wheat (Use third-person view to scan the model)"
+                text: "Just hold wheat and scan the model with Third-person view"
             }
         },
 
@@ -185,9 +189,6 @@ var tempLang = {
         },
         rightBottomWindow: {
             modelTreeText: "Model tree"
-        },
-        info: {
-            text: "Dudu-Modeler\Version - " + version
         }
 
     },
@@ -296,11 +297,11 @@ var tempLang = {
             },
             modelEntityDied: {
                 title: "모델 엔티티가 죽었어요! 어떡하죠?",
-                text: "\"모델 엔티티 소환\" 버튼으로 재소환하세요"
+                text: "\"모델 엔티티 다시 소환하기\" 버튼으로 재소환하세요"
             },
             canModelEntityStare: {
                 title: "모델 엔티티가 한 방향만 바라보게 할 수는 없나요?",
-                text: "밀을 들고있으세요 (모델링 관찰하려면 3인칭으로)"
+                text: "밀을 들고있는 상태에서 3인칭으로 모델링을 훑어보세요"
             }
         },
         rightTopWindow: {
@@ -308,9 +309,6 @@ var tempLang = {
         },
         rightBottomWindow: {
             modelTreeText: "모델링 트리"
-        },
-        info: {
-            text: "두두 모델러\n버전 - " + version
         }
     }
 };
@@ -642,8 +640,8 @@ function deleteBox(index) {
         resetLeftWindow();
 
         updateModel();
-
-        textureMapLayer.splice(index + 1);
+        
+        textureMapLayer.splice(index+1);
 
         updateTextureMap();
 
@@ -689,10 +687,10 @@ function deleteAllBoxes() {
                 resetLeftWindow();
 
                 updateModel();
-
+                
                 resetTextureMap();
-
-                updateTextureMap();
+                
+        	updateTextureMap();
 
             }
         }));
@@ -737,16 +735,16 @@ function saveProject() {
     new java.lang.Thread(new java.lang.Runnable({
         run: function () {
             try {
-                var fileDir = SDCARD + "/Duduzzing/Dudu-Modeler/" + modelName + "/" + modelName;
-                var file = new File(fileDir + ".dm");
+            	var fileDir = SDCARD + "/Duduzzing/Dudu-Modeler/" + modelName + "/" + modelName;
+                var file = new File(fileDir+".dm");
 
 
                 var theCount = 1;
 
                 while (true) {
                     if (file.exists()) {
-                        fileDir = SDCARD + "/Duduzzing/Dudu-Modeler/" + modelName + "/" + modelName + "_" + theCount;
-                        file = new File(fileDir + ".dm");
+                    	fileDir = SDCARD + "/Duduzzing/Dudu-Modeler/" + modelName + "/" + modelName + "_" + theCount;
+                        file = new File(fileDir+ ".dm");
                         theCount++;
                     } else {
                         break;
@@ -774,63 +772,64 @@ function saveProject() {
                 w.close();
                 ow.close();
                 fos.close();
+                
+                
+		var fo = new java.io.FileOutputStream(new File(fileDir+".png"));
+		
+        	var bitmap = new Bitmap.createBitmap(textureSize.x, textureSize.y, Bitmap.Config.ARGB_8888);
+        	
+        	var canvas = new Canvas(bitmap);
+        	
+        	var matrix = new android.graphics.Matrix();
+        	
+        	for(var a = 0; a < modelTree.length; a++){
+        		        		
+        		canvas.drawBitmap( getBoxTexture(a,1) , matrix, null);
+        	        	
+        	}
 
-
-                var fo = new java.io.FileOutputStream(new File(fileDir + ".png"));
-
-                var bitmap = new Bitmap.createBitmap(textureSize.x, textureSize.y, Bitmap.Config.ARGB_8888);
-
-                var canvas = new Canvas(bitmap);
-
-                var matrix = new android.graphics.Matrix();
-
-                for (var a = 0; a < modelTree.length; a++) {
-
-                    canvas.drawBitmap(getBoxTexture(a, 1), matrix, null);
-
-                }
-
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fo);
-
-
-                var toWrite = [
-                    "function " + modelName + "Model (renderer){",
-                    "var Model = renderer.getModel();",
-                    "var head = Model.getPart('head');",
-                    "var body = Model.getPart('body');",
-                    "var rightArm = Model.getPart('rightArm');",
-                    "var leftArm = Model.getPart('leftArm');",
-                    "var rightLeg = Model.getPart('rightLeg');",
-                    "var leftLeg = Model.getPart('leftLeg');",
-                    "head.clear();",
-                    "body.clear();",
-                    "rightArm.clear();",
-                    "leftArm.clear();",
-                    "rightLeg.clear();",
-                    "leftLeg.clear();",
-                    "var modelTree = " + uneval(modelTree) + ";",
-                    "var textureSize = " + uneval(textureSize) + ";",
-                    "for (var a in modelTree) {",
-                    "var m = modelTree[a];",
-                    "var modelPart = m.modelPart;",
-                    "eval(modelPart + '.setTextureSize(' + textureSize.x + ',' + textureSize.y + ');');",
-                    "eval(modelPart + '.setTextureOffset' + m.textOffsetX + ',' + m.textOffsetY + ', true);');",
-                    "eval(modelPart + '.addBox(' + m.offsetX + ',' + m.offsetY + ',' + m.offsetZ + ',' + m.dimensionX + ',' + m.dimensionY + ',' + m.dimensionZ + ',' + m.scale + ');');",
-                    "eval(modelPart + '.setRotationPoint(' + m.rotationX + ',' + m.rotationY + ',' + m.rotationZ + ');');",
-                    "}",
-                    "}",
-                    "var " + modelName + "Renderer = Renderer.createHumanoidRenderer();",
-                modelName + "Model(" + modelName + "Renderer);"];
-
-                var fos2 = new java.io.FileOutputStream(new File(fileDir + ".js"));
-                var ow2 = new java.io.OutputStreamWriter(fos2);
-                var w2 = new java.io.BufferedWriter(ow2);
-                for (var a in toWrite) {
-                    w2.write(toWrite[a] + "\n");
-                }
-                w2.close();
-                ow2.close();
-                fos2.close();
+        	bitmap.compress(Bitmap.CompressFormat.PNG, 100, fo);
+        	
+        	
+        var toWrite = [
+        "function "+modelName+"Model (renderer){",
+        "var Model = renderer.getModel();",
+        "var head = Model.getPart('head');",
+        "var body = Model.getPart('body');",
+        "var rightArm = Model.getPart('rightArm');",
+        "var leftArm = Model.getPart('leftArm');",
+        "var rightLeg = Model.getPart('rightLeg');",
+        "var leftLeg = Model.getPart('leftLeg');",
+        "head.clear();",
+        "body.clear();",
+        "rightArm.clear();",
+        "leftArm.clear();",
+        "rightLeg.clear();",
+        "leftLeg.clear();",
+        "var modelTree = "+uneval(modelTree)+";",
+        "var textureSize = "+uneval(textureSize)+";",
+        "for (var a in modelTree) {",
+        "var m = modelTree[a];",
+        "var modelPart = m.modelPart;",
+        "eval(modelPart + '.setTextureSize(' + textureSize.x + ',' + textureSize.y + ');');",
+        "eval(modelPart + '.setTextureOffset' + m.textOffsetX + ',' + m.textOffsetY + ', true);');",
+        "eval(modelPart + '.addBox(' + m.offsetX + ',' + m.offsetY + ',' + m.offsetZ + ',' + m.dimensionX + ',' + m.dimensionY + ',' + m.dimensionZ + ',' + m.scale + ');');",
+        "eval(modelPart + '.setRotationPoint(' + m.rotationX + ',' + m.rotationY + ',' + m.rotationZ + ');');",
+        "}",
+        "}",
+        "var "+modelName+"Renderer = Renderer.createHumanoidRenderer();",
+        modelName+"Model(" + modelName + "Renderer);"
+        ];
+        
+        var fos2 = new java.io.FileOutputStream(new File(fileDir+".js"));
+        var ow2 = new java.io.OutputStreamWriter(fos2);
+        var w2 = new java.io.BufferedWriter(ow2);
+        for(var a in toWrite){
+            w2.write(toWrite[a] + "\n");
+        }
+        w2.close();
+        ow2.close();
+        fos2.close();
 
 
             } catch (e) {
@@ -885,8 +884,8 @@ function loadProject(path) {
                         try {
 
                             for (var a in modelTree) {
-
-                                textureMapLayer.push(getBoxTexture[a]);
+                            	
+                            	textureMapLayer.push(getBoxTexture[a]);
 
                                 var btn = new Button(CTX);
 
@@ -901,14 +900,14 @@ function loadProject(path) {
 
                                     }
                                 }));
-
+                                
                                 rightBottomLayout.addView(btn);
 
                             }
-
+                            
                             updateTextureMap();
-
-
+                            
+                            
                         } catch (e) {
                             error(e);
                         }
@@ -927,18 +926,18 @@ function loadProject(path) {
 }
 
 function loadModelBase(model) {
-    try {
+	try{
+	
+	  var modelBase = eval(uneval(model));
 
-        var modelBase = eval(uneval(model));
 
-
-        modelName = modelBase.name;
-        textureSize.x = modelBase.textureSize.x;
-        textureSize.y = modelBase.textureSize.y;
-        modelTree = modelBase.model;
-    } catch (err) {
-        error(err);
-    }
+    modelName = modelBase.name;
+    textureSize.x = modelBase.textureSize.x;
+    textureSize.y = modelBase.textureSize.y;
+    modelTree = modelBase.model;
+    }catch(err){
+    	error(err);
+    	}
 
 }
 
@@ -956,11 +955,11 @@ function loadTexture(skinPath, skinName) {
         var fo = new java.io.FileOutputStream(dstPath);
 
         var bitmap = BitmapFactory.decodeFile(skinPath + skinName);
-
-        textureMapLayer[0] = Drawable.BitmapDrawable(Bitmap.createScaledBitmap(bitmap, bitmap.getWidth() * 2, bitmap.getHeight() * 2, false));
-
+        
+        textureMapLayer[0] = Drawable.BitmapDrawable( Bitmap.createScaledBitmap(bitmap, bitmap.getWidth()*2, bitmap.getHeight()*2,false));
+        
         textureMapLayer[0].setAlpha(150);
-
+        
         updateTextureMap();
 
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, fo);
@@ -1102,10 +1101,10 @@ function showHelpMenu() {
         }
 
         addBtn(theTitleArray, theTextArray);
-
+        
         scroll.addView(layout);
 
-        helpWindow = new PopupWindow(scroll, screenWidth / 2, android.view.WindowManager.LayoutParams.WRAP_CONTENT);
+        helpWindow = new PopupWindow(scroll, screenWidth / 2, android.view.WindowManager.LayoutParams.WRAP_CONTENT );
 
         helpWindow.setFocusable(true);
 
@@ -1122,111 +1121,45 @@ function showHelpMenu() {
 
 
 
-function showBigTextureMap() {
-    try {
-        var window;
+function showBigTextureMap(){
 
-        var btn = new Button(CTX);
+var window;
 
-        var layer = textureMapLayer.slice();
+var btn = new Button(CTX);
 
-        for (var a in layer) {
-            var bit = layer[a].getBitmap();
+var layer = textureMapLayer.slice();
 
-            bit.setWidth(screenWidth);
-            bit.setHeight(screenHeight);
+for(var a in layer){
+var bit = layer[a].getBitmap();
 
-            layer[a] = new Drawable.BitmapDrawable(bit);
+var bitmap = Bitmap.createScaledBitmap(bit,screenWidth,screenHeight, false);
 
-        }
+layer[a] = new Drawable.BitmapDrawable(bitmap);
 
-        btn.setBackgroundDrawable(new Drawable.LayerDrawable(layer));
-
-        btn.setOnClickListener(new android.view.View.OnClickListener({
-            onClick: function (view) {
-
-                window.dismiss();
-
-            }
-        }));
-
-
-
-        window = new PopupWindow(btn, screenWidth, screenHeight);
-
-        window.setFocusable(true);
-
-        window.setBackgroundDrawable(new Drawable.ColorDrawable(Color.argb(200, 0, 0, 0)));
-
-        window.showAtLocation(CTX.getWindow().getDecorView(), Gravity.CENTER, 0, 0);
-
-    } catch (err) {
-        error(err);
-
-    }
-}
-
-
-function showInfo() {
-
-    try {
-        //todo: create array of DM logo/////////////////////////////////////
-        var logoBitmap;
-        var window;
-        var layout = new LinearLayout(CTX);
-
-        var btn = new Button(CTX);
-
-        btn.setBackgroundDrawable(new Drawable.BitmapDrawable(logoBitmap));
-
-        btn.setOnClickListener(new android.view.View.OnClickListener({
-            onClick: function (view) {
-
-                window.dismiss();
-
-            }
-        }));
-
-        var params1 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-
-        params1.gravity = Gravity.CENTER;
-
-        btn.setLayoutParams(params1);
-
-        layout.addView(btn);
-
-        var text = new TextView(CTX);
-
-        text.setGravity(Gravity.CENTER);
-
-        text.setText(lang.info.text);
-
-        text.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, 25);
-
-        var params2 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-
-        params2.gravity = Gravity.CENTER;
-
-        text.setLayoutParams(params2);
-
-        layout.addView(text);
-
-
-
-        window = new PopupWindow(layout, screenWidth, screenHeight);
-
-        window.setFocusable(true);
-
-        window.setBackgroundDrawable(new Drawable.ColorDrawable(Color.argb(200, 0, 0, 0)));
-
-        window.showAtLocation(CTX.getWindow().getDecorView(), Gravity.CENTER, 0, 0);
-
-    } catch (err) {
-        error(err);
-    }
+layer[a].setAlpha(100);
 
 }
 
+btn.setBackgroundDrawable(new Drawable.LayerDrawable(layer));
+
+btn.setOnClickListener(new android.view.View.OnClickListener({
+                    onClick: function (view) {
+
+window.dismiss();
+
+}}));
+
+
+	
+window = new PopupWindow(btn, screenWidth, screenHeight );
+
+window.setFocusable(true);
+
+window.setBackgroundDrawable(new Drawable.ColorDrawable(Color.argb(200, 0, 0, 0)));
+
+window.showAtLocation(CTX.getWindow().getDecorView(), Gravity.CENTER, 0, 0);
+
+}
 
 ////////////////////////////////////////////////////////////////////////
 
@@ -1580,15 +1513,15 @@ function showModelEditMenu(isShowcase) {
                         rightBottomLayout.addView(btn);
 
                         setLeftWindow();
-
+                        
                         ////////////////////////////////////////////////////////////////////////////
-
+                        
                         textureMapLayer.push(getBoxTexture(modelTree.length - 1));
-
+                        
                         updateTextureMap();
-
+                        
                         ////////////////////////////////////////////////////////////////////////////
-
+                        
                     }
                 }));
 
@@ -1656,8 +1589,8 @@ function showModelEditMenu(isShowcase) {
 
                             if (cloneBox == null) {
 
-                                toast(lang.leftWindow.copyTheBoxFirst);
-
+                                toast(lang.leftWindow.copyTheBoxFirst );
+                                
                                 return;
                             }
 
@@ -1699,9 +1632,9 @@ function showModelEditMenu(isShowcase) {
                             rightBottomLayout.addView(btn);
 
                             setLeftWindow();
-
+                            
                             textureMapLayer.push(getBoxTexture(modelTree.length - 1));
-
+                            
                             updateTextureMap();
 
                         } catch (err) {
@@ -1995,12 +1928,6 @@ function showModelEditMenu(isShowcase) {
 
                 infoBtn.setText(lang.leftWindow.infoBtn);
 
-                infoBtn.setOnClickListener(new android.view.View.OnClickListener({
-                    onClick: function (view) {
-                        showInfo();
-                    }
-                }));
-
                 leftLayout.addView(infoBtn);
 
                 var exitBtn = new Button(CTX);
@@ -2087,32 +2014,39 @@ function showModelEditMenu(isShowcase) {
                 rightTopLayout.addView(textureMapText);
 
                 var wid = textureSize.x * 2;
-
-                var hei = textureSize.y * 2;
-
+                
+                var hei = textureSize.y * 2;                
+                
+                /*
                 var arr = [];
 
                 var theLength = wid * hei;
 
                 for (var a = 0; a < theLength; a++) arr.push(-1);
+                */
 
-                var textureMap = new Bitmap.createBitmap(arr, wid, hei, Bitmap.Config.ARGB_8888);
+                var textureMap = new Bitmap.createBitmap(wid, hei, Bitmap.Config.ARGB_8888);
+                
+                var textureCanvas = new Canvas(textureMap);
+                
+                textureCanvas.drawColor(Color.WHITE);
+                
 
                 textureMapBtn = new Button(CTX);
 
                 textureMapBtn.setWidth(wid);
                 textureMapBtn.setHeight(hei);
+                
+                if(isShowcase != true){
 
-                if (isShowcase != true) {
-
-                    textureMapLayer = [new Drawable.BitmapDrawable(textureMap)];
-
-                    for (var a in modelTree) {
-
-                        textureMapLayer.push(getBoxTexture(a));
-
-                    }
-                }
+                textureMapLayer = [new Drawable.BitmapDrawable(textureMap)];
+                
+                for(var a in modelTree){
+                	
+                	 textureMapLayer.push(getBoxTexture(a));                	
+                	
+                	}
+                	}
 
                 textureMapBtn.setBackgroundDrawable(new Drawable.LayerDrawable(textureMapLayer));
 
@@ -2120,8 +2054,8 @@ function showModelEditMenu(isShowcase) {
 
                 textureMapBtn.setOnClickListener(new android.view.View.OnClickListener({
                     onClick: function (view) {
-                        //////////////show the bigger texture map//////////////////////////
-                        showBigTextureMap();
+//////////////show the bigger texture map//////////////////////////
+showBigTextureMap();
 
                     }
                 }));
@@ -2175,14 +2109,14 @@ function showModelEditMenu(isShowcase) {
 
                     rightBottomLayout.addView(btn1);
                 }
-
+                
                 rightBottomScroll.addView(rightBottomLayout);
 
                 rightBottomWindow.setContentView(rightBottomScroll);
 
                 rightBottomWindow.setWidth(screenWidth / 4);
 
-                rightBottomWindow.setHeight(screenHeight * (2 / 3));
+                rightBottomWindow.setHeight(screenHeight * (2/3));
 
                 rightBottomWindow.setBackgroundDrawable(new Drawable.ColorDrawable(Color.argb(140, 0, 0, 0)));
 
@@ -2203,64 +2137,84 @@ function showModelEditMenu(isShowcase) {
 
 ////////////////////////////////////////////////
 
-function getBoxTexture(index, scale) {
-    try {
+function getBoxTexture(index, scale){
+try{
 
-        if (scale == undefined) scale = 2;
+if(scale == undefined)
+scale = 2;
 
 
-        var bitmap = new Bitmap.createBitmap(textureSize.x * 2, textureSize.y * 2, Bitmap.Config.ARGB_8888);
+var bitmap = new Bitmap.createBitmap(textureSize.x * 2, textureSize.y * 2, Bitmap.Config.ARGB_8888);
 
-        var box = modelTree[index];
+var box = modelTree[index];
 
-        var x = box.dimensionX * scale;
-        var y = box.dimensionY * scale;
-        var z = box.dimensionZ * scale;
+var x = box.dimensionX *scale;
+var y = box.dimensionY *scale;
+var z = box.dimensionZ *scale;
 
-        var textX = box.textOffsetX;
-        var textY = box.textOffsetY;
+var textX = box.textOffsetX;
+var textY = box.textOffsetY;
 
-        var canvas = new Canvas(bitmap);
-        var paint = new Paint();
-        paint.setAlpha(150);
+var canvas = new Canvas(bitmap);
+var paint = new Paint();
+paint.setAlpha(150);
 
-        var topRect = new Rect(z + textX * scale, textY * scale, z + x + textX * scale, z + textY * scale);
-        var bottomRect = new Rect(z + x + textX * scale, textY * scale, z + x + x + textX * scale, z + textY * scale);
-        var rightRect = new Rect(textX * scale, z + textY * scale, z + textX * scale, z + y + textY * scale);
-        var frontRect = new Rect(z + textX * scale, z + textY * scale, z + x + textX * scale, z + y + textY * scale);
-        var leftRect = new Rect(z + x + textX * scale, z + textY * scale, z + x + z + textX * scale, z + y + textY * scale);
-        var backRect = new Rect(z + x + z + textX * scale, z + textY * scale, z + x + z + x + textX * scale, z + y + textY * scale);
+var topRect = new Rect(z+textX*scale, textY*scale , z+x+textX *scale , z+textY *scale );
+var bottomRect = new Rect(z+x+textX *scale , textY *scale , z+x+x+textX *scale , z+textY *scale );
+var rightRect = new Rect(textX *scale , z+textY *scale , z+textX *scale , z+y+textY *scale );
+var frontRect = new Rect(z+textX *scale , z+textY *scale , z+x+textX *scale , z+y+textY *scale );
+var leftRect = new Rect(z+x+textX *scale , z+textY *scale , z+x+z+textX *scale , z+y+textY *scale );
+var backRect = new Rect(z+x+z+textX *scale , z+textY *scale , z+x+z+x+textX *scale , z+y+textY *scale );
 
-        var arr = [topRect, bottomRect, rightRect, frontRect, leftRect, backRect];
-        var color = [Color.RED, Color.BLUE, Color.GREEN, Color.CYAN, Color.YELLOW, Color.MAGENTA];
+var arr = [topRect, bottomRect, rightRect, frontRect, leftRect, backRect];
+var color = [Color.RED, Color.BLUE, Color.GREEN, Color.CYAN, Color.YELLOW, Color.MAGENTA];
 
-        for (var a in arr) {
-            paint.setColor(color[a]);
-            canvas.drawRect(arr[a], paint);
-        }
+for(var a in arr){
+	paint.setColor(color[a]);
+	canvas.drawRect(arr[a], paint);
+}
 
-        if (scale == 1) return bitmap;
-        else return new Drawable.BitmapDrawable(bitmap);
+if(scale == 1)
+return bitmap;
+else
+return new Drawable.BitmapDrawable(bitmap);
 
-    } catch (err) {
-        error(err);
-    }
+}catch(err){
+	error(err);
+}
 
 }
 
-function updateTextureMap() {
-    try {
+function updateTextureMap(){
+	try{
         textureMapBtn.setBackgroundDrawable(new Drawable.LayerDrawable(textureMapLayer));
-    } catch (e) {
-        error(e);
-    }
+}catch(e){
+	error(e);
+	}
+	}
+
+function resetTextureMap(){
+	textureMapLayer = [textureMapLayer[0]];
+	updateTextureMap();
 }
 
-function resetTextureMap() {
-    textureMapLayer = [textureMapLayer[0]];
-    updateTextureMap();
-}
+function resizeTextureMap(){
+	
+var layer = textureMapLayer;
 
+for(var a in layer){
+var bit = layer[a].getBitmap();
+
+var bitmap = Bitmap.createScaledBitmap(bit, textureSize.x, textureSize.y, false);
+
+layer[a] = new Drawable.BitmapDrawable(bitmap);
+
+layer[a].setAlpha(100);
+
+} 	
+	
+	updateTextureMap();
+}
 
 ////////////////////////////////////////////////
 
@@ -2387,21 +2341,61 @@ function attackHook(a, v) {
 
 }
 
-function procCmd(cmd) {
 
-    if (cmd == "start") {
 
-        Entity.setCarriedItem(Player.getEntity(), modelMaker, 1);
+
+
+
+function download(url, path, endFunc) {
+  new java.lang.Thread(new java.lang.Runnable({
+    run: function() {
+      try {
+        var file = new java.io.File(SDCARD, path);
+        
+        if (file.exists()) 
+          return;
+          
+          var parent = file.getParentFile();
+        
+        if (!parent.exists()) 
+          parent.mkdirs();
+
+        
+        var URL = new java.net.URL(url);
+        var urlConn = URL.openConnection();
+        urlConn.connect();
+        var bis = new java.io.BufferedInputStream(URL.openStream());
+        var bos = new java.io.BufferedOutputStream(new java.io.FileOutputStream(file));
+
+        var downloadDialog;
+
+        var data = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+        var count;
+        
+        while ((count = bis.read(data)) != -1) {
+          java.lang.Thread.sleep(1);
+          bos.write(data, 0, count);
+                    
+       }
+        urlConn.disconnect();
+        bos.flush();
+        bos.close();
+        bis.close();
+                  
+      } catch(e) {
+        error(e);
+      } finally{
+      	 if(endFunc != undefined)
+      endFunc();      	
+      	}
     }
-
+  })).start();
 }
 
+if(!File(SDCARD+"/Duduzzing/Dudu-Modeler/DM.png").exists())
+download(url ,SDCARD+"/Duduzzing/Dudu-Modeler/DM.png", function(){print("다운완료")} );
 
-
-
-
-
-
+/////////////////////
 
 
 
@@ -2521,10 +2515,10 @@ function customEditText(hint, title, type, isInt, isFloat, isPositive) {
                                 btn.setText(text + "");
 
                                 updateModel();
-
-                                textureMapLayer[modelTree.indexOf(selectedBox) + 1] = getBoxTexture(modelTree.indexOf(selectedBox));
-
-                                updateTextureMap();
+                                
+                        	textureMapLayer[modelTree.indexOf(selectedBox)+1] = getBoxTexture(modelTree.indexOf(selectedBox));
+                        
+                        	updateTextureMap();
 
                                 if (type == "name") rightBottomLayout.getChildAt(modelTree.indexOf(selectedBox) + 1).setText(text);
 
@@ -2835,7 +2829,3 @@ function FileList(context) {
     this.theListView.setOnItemClickListener(listener);
 
 }
-
-
-
-
