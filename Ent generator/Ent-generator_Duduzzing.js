@@ -116,7 +116,8 @@ function entAI(){
             if(dis < 15){
                 if(cool.attack[index] > 20){
                     var hurt1 = Level.spawnMob(tx,ty, tz,80);
-                    Entity.setRenderType(hurt1,0);
+                   // Entity.setRenderType(hurt1,0);
+                   // rendering arrow bugs out in BL 1.9.10
                     Entity.setVelY(hurt1,3);
                     Entity.setHealth(target[index], Entity.getHealth(target[index])-2);
                     cool.attack[index] = 0;
@@ -127,7 +128,7 @@ function entAI(){
                         Level.addParticle(ParticleType.redstone,tx,tyy,tz,0,0,0,15);
                     }
                     var hurt = Level.spawnMob(tx,ty, tz,80);
-                    Entity.setRenderType(hurt,0);
+                   // Entity.setRenderType(hurt,0);
                     Entity.setVelY(hurt,2);
                     var health = Entity.getHealth(target[index])- originalHealth[index]/4;
                     var totalHealth = Entity.getHealth(ent) + originalHealth[index]/4;
@@ -460,7 +461,7 @@ function newLevel(){
 
 function attackHook(a, v){
     for each(var e in entArray){
-        if( v == e){
+        if(v == e){
             target[entArray.indexOf(e)]=Player.getEntity();
             break;
         }
