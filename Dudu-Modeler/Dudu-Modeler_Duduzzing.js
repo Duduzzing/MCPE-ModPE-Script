@@ -7,7 +7,7 @@
  * 
  */
 
-var version = "0.9";
+var version = "1.0";
 
 var SDCARD = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
 
@@ -72,7 +72,7 @@ var language = java.util.Locale.getDefault().getLanguage();
 var tempLang = {
 
     en: {
-    	   scriptName: "Dudu-Modeler",
+        scriptName: "Dudu-Modeler",
         yes: "Yes",
         No: "No",
         update: "Update",
@@ -90,9 +90,9 @@ var tempLang = {
             rightLeg: "rightLeg",
             leftLeg: "leftLeg"
         },
-        changeTextSize:{
-        text: "Would u update the model's texture size to fit the resolution?",
-        title: "Edit texture size"       	
+        changeTextSize: {
+            text: "Would u update the model's texture size to fit the resolution?",
+            title: "Edit texture size"
         },
         errorMessage: {
             int: "Please enter Integer",
@@ -100,7 +100,7 @@ var tempLang = {
             positive: "Please enter positive number",
             string: "Please enter the combination of Alphabet, Number, and Underbar"
         },
-       
+
         confirm: {
             deleteAllBoxes: {
                 title: "Confirm deletion",
@@ -173,7 +173,7 @@ var tempLang = {
         help: {
             whereIsSaveDir: {
                 title: "Where is the file saving directory?",
-                text: SDCARD+"/Duduzzing/Dudu-Modeler/"
+                text: SDCARD + "/Duduzzing/Dudu-Modeler/"
             },
             skinCrash: {
                 title: "The loaded skin crashes. What should I do?",
@@ -203,7 +203,7 @@ var tempLang = {
     },
 
     ko: {
-    	   scriptName: "두두 모델러",
+        scriptName: "두두 모델러",
         yes: "예",
         no: "아니요",
         update: "업데이트",
@@ -221,9 +221,9 @@ var tempLang = {
             rightLeg: "rightLeg",
             leftLeg: "leftLeg"
         },
-        changeTextSize:{
-        text: "고른 스킨의 화질에 맞게 모델의 텍스쳐의 크기를 변경하시겠습니까?",
-        title: "텍스쳐 수정"       	
+        changeTextSize: {
+            text: "고른 스킨의 화질에 맞게 모델의 텍스쳐의 크기를 변경하시겠습니까?",
+            title: "텍스쳐 수정"
         },
         errorMessage: {
             int: "정수를 입력해주세요",
@@ -303,7 +303,7 @@ var tempLang = {
         help: {
             whereIsSaveDir: {
                 title: "파일 저장 경로가 어딘가요?",
-                text: SDCARD+"/Duduzzing/Dudu-Modeler/"
+                text: SDCARD + "/Duduzzing/Dudu-Modeler/"
             },
             skinCrash: {
                 title: "불러온 스킨이 깨집니다. 어떡하죠?",
@@ -400,9 +400,9 @@ function toast(str) {
 
 
 function isVar(str) {
-    if (/\W/g.test(str)){
-    	return false;
-    	}
+    if (/\W/g.test(str)) {
+        return false;
+    }
     try {
         eval("var " + str + ";");
     } catch (e) {
@@ -666,8 +666,8 @@ function deleteBox(index) {
         resetLeftWindow();
 
         updateModel();
-        
-        textureMapLayer.splice(index+1);
+
+        textureMapLayer.splice(index + 1);
 
         updateTextureMap();
 
@@ -713,10 +713,10 @@ function deleteAllBoxes() {
                 resetLeftWindow();
 
                 updateModel();
-                
+
                 resetTextureMap();
-                
-        	       updateTextureMap();
+
+                updateTextureMap();
 
             }
         }));
@@ -761,16 +761,16 @@ function saveProject() {
     new java.lang.Thread(new java.lang.Runnable({
         run: function () {
             try {
-            	var fileDir = SDCARD + "/Duduzzing/Dudu-Modeler/" + modelName + "/" + modelName;
-                var file = new File(fileDir+".dm");
+                var fileDir = SDCARD + "/Duduzzing/Dudu-Modeler/" + modelName + "/" + modelName;
+                var file = new File(fileDir + ".dm");
 
 
                 var theCount = 1;
 
                 while (true) {
                     if (file.exists()) {
-                    	fileDir = SDCARD + "/Duduzzing/Dudu-Modeler/" + modelName + "/" + modelName + "_" + theCount;
-                        file = new File(fileDir+ ".dm");
+                        fileDir = SDCARD + "/Duduzzing/Dudu-Modeler/" + modelName + "/" + modelName + "_" + theCount;
+                        file = new File(fileDir + ".dm");
                         theCount++;
                     } else {
                         break;
@@ -798,72 +798,71 @@ function saveProject() {
                 w.close();
                 ow.close();
                 fos.close();
-                
-                
-		var fo = new java.io.FileOutputStream(new File(fileDir+".png"));
-		
-        	var bitmap = new Bitmap.createBitmap(textureSize.x, textureSize.y, Bitmap.Config.ARGB_8888);
-        	
-        	var canvas = new Canvas(bitmap);
-        	
-        	var matrix = new android.graphics.Matrix();
-        	
-        	for(var a = 0; a < modelTree.length; a++){
-        		        		
-        		canvas.drawBitmap( getBoxTexture(a,1) , matrix, null);
-        	        	
-        	}
 
-        	bitmap.compress(Bitmap.CompressFormat.PNG, 100, fo);
-        	
-        	
-        var toWrite = [
-        "function "+modelName+"Model (renderer){",
-        "var Model = renderer.getModel();",
-        "var head = Model.getPart('head');",
-        "var body = Model.getPart('body');",
-        "var rightArm = Model.getPart('rightArm');",
-        "var leftArm = Model.getPart('leftArm');",
-        "var rightLeg = Model.getPart('rightLeg');",
-        "var leftLeg = Model.getPart('leftLeg');",
-        "head.clear();",
-        "body.clear();",
-        "rightArm.clear();",
-        "leftArm.clear();",
-        "rightLeg.clear();",
-        "leftLeg.clear();",
-        "var modelTree = "+uneval(modelTree)+";",
-        "var textureSize =  {x:"+textureSize.x+", y:"+textureSize.y+"};",
-        "for (var a in modelTree) {",
-        "var m = modelTree[a];",
-        "var modelPart = m.modelPart;",
-        "eval(modelPart + '.setTextureSize(' + textureSize.x + ',' + textureSize.y + ');');",
-        "eval(modelPart + '.setTextureOffset(' + m.textOffsetX + ',' + m.textOffsetY + ', true);');",
-        "eval(modelPart + '.addBox(' + m.offsetX + ',' + m.offsetY + ',' + m.offsetZ + ',' + m.dimensionX + ',' + m.dimensionY + ',' + m.dimensionZ + ',' + m.scale + ');');",
-        "eval(modelPart + '.setRotationPoint(' + m.rotationX + ',' + m.rotationY + ',' + m.rotationZ + ');');",
-        "}",
-        "}",
-        "var "+modelName+"Renderer = Renderer.createHumanoidRenderer();",
-        modelName+"Model(" + modelName + "Renderer);",
-        "",
-        ""
-        ];
-        
-        var fos2 = new java.io.FileOutputStream(new File(fileDir+".js"));
-        var ow2 = new java.io.OutputStreamWriter(fos2);
-        var w2 = new java.io.BufferedWriter(ow2);
-        for(var a in toWrite){
-            w2.write(toWrite[a] + "\n");
-        }
-        w2.close();
-        ow2.close();
-        fos2.close();
-        
-        
-        clientMessage(lang.saveNoti+": "+modelName);
-        
 
- 
+                var fo = new java.io.FileOutputStream(new File(fileDir + ".png"));
+
+                var bitmap = new Bitmap.createBitmap(textureSize.x, textureSize.y, Bitmap.Config.ARGB_8888);
+
+                var canvas = new Canvas(bitmap);
+
+                var matrix = new android.graphics.Matrix();
+
+                for (var a = 0; a < modelTree.length; a++) {
+
+                    canvas.drawBitmap(getBoxTexture(a, 1), matrix, null);
+
+                }
+
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fo);
+
+
+                var toWrite = [
+                    "function " + modelName + "Model (renderer){",
+                    "var Model = renderer.getModel();",
+                    "var head = Model.getPart('head');",
+                    "var body = Model.getPart('body');",
+                    "var rightArm = Model.getPart('rightArm');",
+                    "var leftArm = Model.getPart('leftArm');",
+                    "var rightLeg = Model.getPart('rightLeg');",
+                    "var leftLeg = Model.getPart('leftLeg');",
+                    "head.clear();",
+                    "body.clear();",
+                    "rightArm.clear();",
+                    "leftArm.clear();",
+                    "rightLeg.clear();",
+                    "leftLeg.clear();",
+                    "var modelTree = " + uneval(modelTree) + ";",
+                    "var textureSize =  {x:" + textureSize.x + ", y:" + textureSize.y + "};",
+                    "for (var a in modelTree) {",
+                    "var m = modelTree[a];",
+                    "var modelPart = m.modelPart;",
+                    "eval(modelPart + '.setTextureSize(' + textureSize.x + ',' + textureSize.y + ');');",
+                    "eval(modelPart + '.setTextureOffset(' + m.textOffsetX + ',' + m.textOffsetY + ', true);');",
+                    "eval(modelPart + '.addBox(' + m.offsetX + ',' + m.offsetY + ',' + m.offsetZ + ',' + m.dimensionX + ',' + m.dimensionY + ',' + m.dimensionZ + ',' + m.scale + ');');",
+                    "eval(modelPart + '.setRotationPoint(' + m.rotationX + ',' + m.rotationY + ',' + m.rotationZ + ');');",
+                    "}",
+                    "}",
+                    "var " + modelName + "Renderer = Renderer.createHumanoidRenderer();",
+                modelName + "Model(" + modelName + "Renderer);",
+                    "",
+                    ""];
+
+                var fos2 = new java.io.FileOutputStream(new File(fileDir + ".js"));
+                var ow2 = new java.io.OutputStreamWriter(fos2);
+                var w2 = new java.io.BufferedWriter(ow2);
+                for (var a in toWrite) {
+                    w2.write(toWrite[a] + "\n");
+                }
+                w2.close();
+                ow2.close();
+                fos2.close();
+
+
+                clientMessage(lang.saveNoti + ": " + modelName);
+
+
+
             } catch (e) {
 
                 error(e);
@@ -910,17 +909,17 @@ function loadProject(path) {
                 modelTree = JSON.parse(arr[2]);
 
                 updateModel();
-                
-                
+
+
 
                 CTX.runOnUiThread(new java.lang.Runnable({
                     run: function () {
                         try {
-                        	
-                        	
-resizeTextureMap();
+
+
+                            resizeTextureMap();
                             for (var a in modelTree) {
-                            	                           
+
                                 var btn = new Button(CTX);
 
                                 btn.setText(modelTree[a].name);
@@ -934,14 +933,14 @@ resizeTextureMap();
 
                                     }
                                 }));
-                                
+
                                 rightBottomLayout.addView(btn);
 
                             }
-                            
-                            
-                            
-                            
+
+
+
+
                         } catch (e) {
                             error(e);
                         }
@@ -960,24 +959,24 @@ resizeTextureMap();
 }
 
 function loadModelBase(model) {
-	try{
-	
-	  var modelBase = eval(uneval(model));
+    try {
+
+        var modelBase = eval(uneval(model));
 
 
-    modelName = modelBase.name;
-    textureSize.x = modelBase.textureSize.x;
-    textureSize.y = modelBase.textureSize.y;
-    modelTree = modelBase.model;
-    }catch(err){
-    	error(err);
-    	}
+        modelName = modelBase.name;
+        textureSize.x = modelBase.textureSize.x;
+        textureSize.y = modelBase.textureSize.y;
+        modelTree = modelBase.model;
+    } catch (err) {
+        error(err);
+    }
 
 }
 
 
-function suggestChangeTextSize(){
-	
+function suggestChangeTextSize() {
+
     CTX.runOnUiThread(new java.lang.Runnable({
         run: function () {
             try {
@@ -992,21 +991,21 @@ function suggestChangeTextSize(){
                 dialog.setTitle(lang.changeTextSize.title);
 
                 dialog.setView(text);
-                
-                
+
+
                 dialog.setNegativeButton(lang.no, null);
-                                                                               
+
                 dialog.setPositiveButton(lang.yes, new android.content.DialogInterface.OnClickListener({
                     onClick: function () {
-                    	try{
-                    	textureSize.x = skinBitmap.width;
-                    	textureSize.y = skinBitmap.height;
-                    	
-                    	resizeTextureMap();
-                    	}catch(e){
-                    		error(e);
-                    		}
-                    	                   	
+                        try {
+                            textureSize.x = skinBitmap.width;
+                            textureSize.y = skinBitmap.height;
+
+                            resizeTextureMap();
+                        } catch (e) {
+                            error(e);
+                        }
+
 
                     }
                 }));
@@ -1019,10 +1018,10 @@ function suggestChangeTextSize(){
                 error(err);
             }
         }
-    })); 	
-	
-	
-	
+    }));
+
+
+
 }
 
 function loadTexture(skinPath, skinName) {
@@ -1038,18 +1037,18 @@ function loadTexture(skinPath, skinName) {
         var fo = new java.io.FileOutputStream(dstPath);
 
         skinBitmap = BitmapFactory.decodeFile(skinPath + skinName);
-        
-        if(skinBitmap.getWidth() != textureSize.x || skinBitmap.getHeight() != textureSize.y){
-       
-        suggestChangeTextSize();
-        	
+
+        if (skinBitmap.getWidth() != textureSize.x || skinBitmap.getHeight() != textureSize.y) {
+
+            suggestChangeTextSize();
+
         }
-        
-        
-        textureMapLayer[0] = Drawable.BitmapDrawable( Bitmap.createScaledBitmap(skinBitmap, skinBitmap.getWidth()*2, skinBitmap.getHeight()*2,false));
-        
+
+
+        textureMapLayer[0] = Drawable.BitmapDrawable(Bitmap.createScaledBitmap(skinBitmap, skinBitmap.getWidth() * 2, skinBitmap.getHeight() * 2, false));
+
         textureMapLayer[0].setAlpha(120);
-        
+
         updateTextureMap();
 
         skinBitmap.compress(Bitmap.CompressFormat.PNG, 100, fo);
@@ -1191,10 +1190,10 @@ function showHelpMenu() {
         }
 
         addBtn(theTitleArray, theTextArray);
-        
+
         scroll.addView(layout);
 
-        helpWindow = new PopupWindow(scroll, screenWidth / 2, android.view.WindowManager.LayoutParams.WRAP_CONTENT );
+        helpWindow = new PopupWindow(scroll, screenWidth / 2, android.view.WindowManager.LayoutParams.WRAP_CONTENT);
 
         helpWindow.setFocusable(true);
 
@@ -1211,114 +1210,115 @@ function showHelpMenu() {
 
 
 
-function showBigTextureMap(){
+function showBigTextureMap() {
 
-try{
-	
-var window;
+    try {
 
-var btn = new Button(CTX);
+        var window;
 
-var layer = textureMapLayer.slice();
+        var btn = new Button(CTX);
 
-for(var a in layer){
-var bit = layer[a].getBitmap();
+        var layer = textureMapLayer.slice();
 
-var bitmap = Bitmap.createScaledBitmap(bit,screenWidth,screenHeight, false);
+        for (var a in layer) {
+            var bit = layer[a].getBitmap();
 
-layer[a] = new Drawable.BitmapDrawable(bitmap);
+            var bitmap = Bitmap.createScaledBitmap(bit, screenWidth, screenHeight, false);
 
-layer[a].setAlpha(100);
+            layer[a] = new Drawable.BitmapDrawable(bitmap);
 
+            layer[a].setAlpha(100);
+
+        }
+
+        btn.setBackgroundDrawable(new Drawable.LayerDrawable(layer));
+
+        btn.setOnClickListener(new android.view.View.OnClickListener({
+            onClick: function (view) {
+
+                window.dismiss();
+
+            }
+        }));
+
+
+
+        window = new PopupWindow(btn, screenWidth, screenHeight);
+
+        window.setFocusable(true);
+
+        window.setBackgroundDrawable(new Drawable.ColorDrawable(Color.argb(200, 0, 0, 0)));
+
+        window.showAtLocation(CTX.getWindow().getDecorView(), Gravity.CENTER, 0, 0);
+
+    } catch (e) {
+        error(e);
+    }
 }
 
-btn.setBackgroundDrawable(new Drawable.LayerDrawable(layer));
-
-btn.setOnClickListener(new android.view.View.OnClickListener({
-                    onClick: function (view) {
-
-window.dismiss();
-
-}}));
-
-
-	
-window = new PopupWindow(btn, screenWidth, screenHeight );
-
-window.setFocusable(true);
-
-window.setBackgroundDrawable(new Drawable.ColorDrawable(Color.argb(200, 0, 0, 0)));
-
-window.showAtLocation(CTX.getWindow().getDecorView(), Gravity.CENTER, 0, 0);
-
-}
-catch(e){
-	error(e);
-	}
-	}
 
 
 
+function showInfo() {
+    try {
+        var window;
 
-function showInfo(){
-try{
-var window;
+        var layout = new LinearLayout(CTX);
 
-var layout = new LinearLayout(CTX);
-
-layout.setOrientation(1);
-
-
-var btn = new Button(CTX);
-
-var bitmap = BitmapFactory.decodeFile(SDCARD+"/Duduzzing/Dudu-Modeler/DM.png");
-
-btn.setBackgroundDrawable(new Drawable.BitmapDrawable(bitmap));
-
-btn.setOnClickListener(new android.view.View.OnClickListener({
-                    onClick: function (view) {
-
-window.dismiss();
-
-}}));
+        layout.setOrientation(1);
 
 
-var len = screenWidth/3;
+        var btn = new Button(CTX);
 
-var params1 = new LinearLayout.LayoutParams(len, len);
+        var bitmap = BitmapFactory.decodeFile(SDCARD + "/Duduzzing/Dudu-Modeler/DM.png");
 
-params1.gravity=Gravity.CENTER;
+        btn.setBackgroundDrawable(new Drawable.BitmapDrawable(bitmap));
 
-btn.setLayoutParams(params1);
+        btn.setOnClickListener(new android.view.View.OnClickListener({
+            onClick: function (view) {
+
+                window.dismiss();
+
+            }
+        }));
 
 
-layout.addView(btn);
+        var len = screenWidth / 3;
+
+        var params1 = new LinearLayout.LayoutParams(len, len);
+
+        params1.gravity = Gravity.CENTER;
+
+        btn.setLayoutParams(params1);
 
 
-
-var text = new TextView(CTX);
-
-text.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, 30);
-	
-text.setText(lang.scriptName+"\nCopyright © Duduzzing / 두두찡\nVersion: "+version);
-
-text.setGravity(Gravity.CENTER);
-
-layout.addView(text);
+        layout.addView(btn);
 
 
 
-window = new PopupWindow(layout, screenWidth, screenHeight );
+        var text = new TextView(CTX);
 
-window.setFocusable(true);
+        text.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, 30);
 
-window.setBackgroundDrawable(new Drawable.ColorDrawable(Color.argb(200, 0, 0, 0)));
+        text.setText(lang.scriptName + "\nCopyright © Duduzzing / 두두찡\nVersion: " + version);
 
-window.showAtLocation(CTX.getWindow().getDecorView(), Gravity.CENTER, 0, 0);
+        text.setGravity(Gravity.CENTER);
 
-}catch(e){
-error(e);	
-}
+        layout.addView(text);
+
+
+
+        window = new PopupWindow(layout, screenWidth, screenHeight);
+
+        window.setFocusable(true);
+
+        window.setBackgroundDrawable(new Drawable.ColorDrawable(Color.argb(200, 0, 0, 0)));
+
+        window.showAtLocation(CTX.getWindow().getDecorView(), Gravity.CENTER, 0, 0);
+
+    } catch (e) {
+        error(e);
+    }
 
 }
 
@@ -1478,19 +1478,19 @@ function showStartMenu(isEditMode) {
                         modelName = name;
                         textureSize.x = textX;
                         textureSize.y = textY;
-                        
-                        
+
+
 
 
                         if (!isEditMode) {
                             spawnModelEntity();
                             showModelEditMenu();
 
-                        } else{
-                        	 resizeTextureMap();
-                        	 
-                        	 updateModel();
-                        	}
+                        } else {
+                            resizeTextureMap();
+
+                            updateModel();
+                        }
 
                     }
                 }));
@@ -1681,15 +1681,15 @@ function showModelEditMenu(isShowcase) {
                         rightBottomLayout.addView(btn);
 
                         setLeftWindow();
-                        
+
                         ////////////////////////////////////////////////////////////////////////////
-                        
+
                         textureMapLayer.push(getBoxTexture(modelTree.length - 1));
-                        
+
                         updateTextureMap();
-                        
+
                         ////////////////////////////////////////////////////////////////////////////
-                        
+
                     }
                 }));
 
@@ -1757,8 +1757,8 @@ function showModelEditMenu(isShowcase) {
 
                             if (cloneBox == null) {
 
-                                toast(lang.leftWindow.copyTheBoxFirst );
-                                
+                                toast(lang.leftWindow.copyTheBoxFirst);
+
                                 return;
                             }
 
@@ -1800,9 +1800,9 @@ function showModelEditMenu(isShowcase) {
                             rightBottomLayout.addView(btn);
 
                             setLeftWindow();
-                            
+
                             textureMapLayer.push(getBoxTexture(modelTree.length - 1));
-                            
+
                             updateTextureMap();
 
                         } catch (err) {
@@ -1896,7 +1896,7 @@ function showModelEditMenu(isShowcase) {
                     onClick: function (view) {
 
                         showStartMenu(true);
-                        
+
                     }
                 }));
 
@@ -2009,7 +2009,7 @@ function showModelEditMenu(isShowcase) {
                 exportBtn.setOnClickListener(new android.view.View.OnClickListener({
                     onClick: function (view) {
                         saveProject();
-                        
+
 
                     }
                 }));
@@ -2094,10 +2094,10 @@ function showModelEditMenu(isShowcase) {
                 var infoBtn = new Button(CTX);
 
                 infoBtn.setText(lang.leftWindow.infoBtn);
-                
+
                 infoBtn.setOnClickListener(new android.view.View.OnClickListener({
                     onClick: function (view) {
- showInfo();
+                        showInfo();
 
                     }
                 }));
@@ -2131,7 +2131,8 @@ function showModelEditMenu(isShowcase) {
 
                                     modelTree = [];
 
-skinBitmap = null;                                    selectedBox = null;
+                                    skinBitmap = null;
+                                    selectedBox = null;
                                     textureSize = {
                                         x: 64,
                                         y: 32
@@ -2187,32 +2188,32 @@ skinBitmap = null;                                    selectedBox = null;
                 rightTopLayout.addView(textureMapText);
 
                 var wid = textureSize.x * 2;
-                
-                var hei = textureSize.y * 2;                
+
+                var hei = textureSize.y * 2;
 
 
                 var textureMap = new Bitmap.createBitmap(wid, hei, Bitmap.Config.ARGB_8888);
-                
+
                 var textureCanvas = new Canvas(textureMap);
-                
+
                 textureCanvas.drawColor(Color.WHITE);
-                
+
 
                 textureMapBtn = new Button(CTX);
 
                 textureMapBtn.setWidth(wid);
                 textureMapBtn.setHeight(hei);
-                
-                if(isShowcase != true){
 
-                textureMapLayer = [new Drawable.BitmapDrawable(textureMap)];
-                
-                for(var a in modelTree){
-                	
-                	 textureMapLayer.push(getBoxTexture(a));                	
-                	
-                	}
-                	}
+                if (isShowcase != true) {
+
+                    textureMapLayer = [new Drawable.BitmapDrawable(textureMap)];
+
+                    for (var a in modelTree) {
+
+                        textureMapLayer.push(getBoxTexture(a));
+
+                    }
+                }
 
                 textureMapBtn.setBackgroundDrawable(new Drawable.LayerDrawable(textureMapLayer));
 
@@ -2220,8 +2221,8 @@ skinBitmap = null;                                    selectedBox = null;
 
                 textureMapBtn.setOnClickListener(new android.view.View.OnClickListener({
                     onClick: function (view) {
-//////////////show the bigger texture map//////////////////////////
-showBigTextureMap();
+                        //////////////show the bigger texture map//////////////////////////
+                        showBigTextureMap();
 
                     }
                 }));
@@ -2275,14 +2276,14 @@ showBigTextureMap();
 
                     rightBottomLayout.addView(btn1);
                 }
-                
+
                 rightBottomScroll.addView(rightBottomLayout);
 
                 rightBottomWindow.setContentView(rightBottomScroll);
 
                 rightBottomWindow.setWidth(screenWidth / 4);
 
-                rightBottomWindow.setHeight(screenHeight * (2/3));
+                rightBottomWindow.setHeight(screenHeight * (2 / 3));
 
                 rightBottomWindow.setBackgroundDrawable(new Drawable.ColorDrawable(Color.argb(140, 0, 0, 0)));
 
@@ -2303,96 +2304,91 @@ showBigTextureMap();
 
 ////////////////////////////////////////////////
 
-function getBoxTexture(index, scale){
-try{
+function getBoxTexture(index, scale) {
+    try {
 
-if(scale == undefined)
-scale = 2;
+        if (scale == undefined) scale = 2;
 
-var bitmap = new Bitmap.createBitmap(textureSize.x * scale, textureSize.y * scale, Bitmap.Config.ARGB_8888);
+        var bitmap = new Bitmap.createBitmap(textureSize.x * scale, textureSize.y * scale, Bitmap.Config.ARGB_8888);
 
-var box = modelTree[index];
+        var box = modelTree[index];
 
-var x = box.dimensionX *scale;
-var y = box.dimensionY *scale;
-var z = box.dimensionZ *scale;
+        var x = box.dimensionX * scale;
+        var y = box.dimensionY * scale;
+        var z = box.dimensionZ * scale;
 
-var textX = box.textOffsetX;
-var textY = box.textOffsetY;
+        var textX = box.textOffsetX;
+        var textY = box.textOffsetY;
 
-var canvas = new Canvas(bitmap);
-var paint = new Paint();
-paint.setAlpha(150);
+        var canvas = new Canvas(bitmap);
+        var paint = new Paint();
+        paint.setAlpha(150);
 
-var topRect = new Rect(z+textX*scale, textY*scale , z+x+textX *scale , z+textY *scale );
-var bottomRect = new Rect(z+x+textX *scale , textY *scale , z+x+x+textX *scale , z+textY *scale );
-var rightRect = new Rect(textX *scale , z+textY *scale , z+textX *scale , z+y+textY *scale );
-var frontRect = new Rect(z+textX *scale , z+textY *scale , z+x+textX *scale , z+y+textY *scale );
-var leftRect = new Rect(z+x+textX *scale , z+textY *scale , z+x+z+textX *scale , z+y+textY *scale );
-var backRect = new Rect(z+x+z+textX *scale , z+textY *scale , z+x+z+x+textX *scale , z+y+textY *scale );
+        var topRect = new Rect(z + textX * scale, textY * scale, z + x + textX * scale, z + textY * scale);
+        var bottomRect = new Rect(z + x + textX * scale, textY * scale, z + x + x + textX * scale, z + textY * scale);
+        var rightRect = new Rect(textX * scale, z + textY * scale, z + textX * scale, z + y + textY * scale);
+        var frontRect = new Rect(z + textX * scale, z + textY * scale, z + x + textX * scale, z + y + textY * scale);
+        var leftRect = new Rect(z + x + textX * scale, z + textY * scale, z + x + z + textX * scale, z + y + textY * scale);
+        var backRect = new Rect(z + x + z + textX * scale, z + textY * scale, z + x + z + x + textX * scale, z + y + textY * scale);
 
-var arr = [topRect, bottomRect, rightRect, frontRect, leftRect, backRect];
-var color = [Color.RED, Color.BLUE, Color.GREEN, Color.CYAN, Color.YELLOW, Color.MAGENTA];
+        var arr = [topRect, bottomRect, rightRect, frontRect, leftRect, backRect];
+        var color = [Color.RED, Color.BLUE, Color.GREEN, Color.CYAN, Color.YELLOW, Color.MAGENTA];
 
-for(var a in arr){
-	paint.setColor(color[a]);
-	canvas.drawRect(arr[a], paint);
-}
+        for (var a in arr) {
+            paint.setColor(color[a]);
+            canvas.drawRect(arr[a], paint);
+        }
 
-if(scale == 1)
-return bitmap;
-else
-return new Drawable.BitmapDrawable(bitmap);
+        if (scale == 1) return bitmap;
+        else return new Drawable.BitmapDrawable(bitmap);
 
-}catch(err){
-	error(err);
-}
+    } catch (err) {
+        error(err);
+    }
 
 }
 
-function updateTextureMap(){
-	try{
-				 
+function updateTextureMap() {
+    try {
+
         textureMapBtn.setBackgroundDrawable(new Drawable.LayerDrawable(textureMapLayer));
-}catch(e){
-	error(e);
-	}
-	}
-
-function resetTextureMap(){
-	textureMapLayer = [textureMapLayer[0]];
-
-updateTextureMap();
+    } catch (e) {
+        error(e);
+    }
 }
 
-function resizeTextureMap(){
+function resetTextureMap() {
+    textureMapLayer = [textureMapLayer[0]];
+
+    updateTextureMap();
+}
+
+function resizeTextureMap() {
 
 
-var first;
+    var first;
 
-if(theSkin != null)
-first = new Drawable.BitmapDrawable(Bitmap.createScaledBitmap(skinBitmap, textureSize.x * 2, textureSize.y*2, false));
-else
-first = new Drawable.BitmapDrawable(Bitmap.createScaledBitmap( textureMapLayer[0].getBitmap(),textureSize.x * 2, textureSize.y*2, false));
+    if (theSkin != null) first = new Drawable.BitmapDrawable(Bitmap.createScaledBitmap(skinBitmap, textureSize.x * 2, textureSize.y * 2, false));
+    else first = new Drawable.BitmapDrawable(Bitmap.createScaledBitmap(textureMapLayer[0].getBitmap(), textureSize.x * 2, textureSize.y * 2, false));
 
-textureMapLayer = [first];
+    textureMapLayer = [first];
 
-var len = modelTree.length;
+    var len = modelTree.length;
 
-for(var a =0; a < len; a++){
+    for (var a = 0; a < len; a++) {
 
-var d = getBoxTexture(a);
+        var d = getBoxTexture(a);
 
-d.setAlpha(120);
+        d.setAlpha(120);
 
-textureMapLayer.push(d);
+        textureMapLayer.push(d);
 
-} 	
+    }
 
 
-textureMapBtn.setLayoutParams(new LinearLayout.LayoutParams(textureSize.x*2,textureSize.y*2));
+    textureMapBtn.setLayoutParams(new LinearLayout.LayoutParams(textureSize.x * 2, textureSize.y * 2));
 
-updateTextureMap();
+    updateTextureMap();
 }
 
 ////////////////////////////////////////////////
@@ -2432,8 +2428,8 @@ function modelEntityAI() {
 
 
 function newLevel() {
-	
-checkUpdate(); 	
+
+    checkUpdate();
 
     clientMessage(lang.newLevelNoti);
 
@@ -2455,9 +2451,9 @@ function useItem(x, y, z, I, b, s, id, bd) {
 
     if (I == modelMaker && isMakingModel == false) {
 
-        theX = x+0.5;
+        theX = x + 0.5;
         theY = y + 1;
-        theZ = z+0.5;
+        theZ = z + 0.5;
 
 
         isMakingModel = true;
@@ -2511,9 +2507,9 @@ function updateModel() {
     Entity.setRenderType(modelEntity, theRenderer.renderType);
 
     if (theSkin != null) {
-    	Entity.setMobSkin(modelEntity, "skin/" + theSkin);
-    	} else{
-    Entity.setMobSkin(modelEntity, "mob/cow.png");
+        Entity.setMobSkin(modelEntity, "skin/" + theSkin);
+    } else {
+        Entity.setMobSkin(modelEntity, "mob/cow.png");
     }
 
 
@@ -2522,16 +2518,17 @@ function updateModel() {
 
 function attackHook(a, v) {
 
-    if (v == modelEntity){ preventDefault();
+    if (v == modelEntity) {
+        preventDefault();
     }
 
 }
 
-function procCmd(cmd){
+function procCmd(cmd) {
 
-if(cmd == "start"){
-Entity.setCarriedItem(Player.getEntity(), modelMaker,1);
-}
+    if (cmd == "start") {
+        Entity.setCarriedItem(Player.getEntity(), modelMaker, 1);
+    }
 
 }
 
@@ -2539,179 +2536,176 @@ Entity.setCarriedItem(Player.getEntity(), modelMaker,1);
 
 
 function download(url, path, endFunc) {
-  new java.lang.Thread(new java.lang.Runnable({
-    run: function() {
-      try {
-        var file = new java.io.File(SDCARD, path);
-        
-        if (file.exists()){
-          return;
-          }
-          
-          var parent = file.getParentFile();
-        
-        if (!parent.exists()) {
-          parent.mkdirs();
-          }
+    new java.lang.Thread(new java.lang.Runnable({
+        run: function () {
+            try {
+                var file = new java.io.File(SDCARD, path);
 
-        
-        var URL = new java.net.URL(url);
-        var urlConn = URL.openConnection();
-        urlConn.connect();
-        var bis = new java.io.BufferedInputStream(URL.openStream());
-        var bos = new java.io.BufferedOutputStream(new java.io.FileOutputStream(file));
+                if (file.exists()) {
+                    return;
+                }
 
-        var data = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
-        var count;
-        
-        while ((count = bis.read(data)) != -1) {
-          java.lang.Thread.sleep(1);
-          bos.write(data, 0, count);
-                    
-       }
-        urlConn.disconnect();
-        bos.flush();
-        bos.close();
-        bis.close();
-                  
-      } catch(e) {
-        error(e);
-      } finally{
-      	 if(endFunc != undefined)
-      endFunc();      	
-      	}
-    }
-  })).start();
-}
+                var parent = file.getParentFile();
+
+                if (!parent.exists()) {
+                    parent.mkdirs();
+                }
 
 
+                var URL = new java.net.URL(url);
+                var urlConn = URL.openConnection();
+                urlConn.connect();
+                var bis = new java.io.BufferedInputStream(URL.openStream());
+                var bos = new java.io.BufferedOutputStream(new java.io.FileOutputStream(file));
 
-if(!File(SDCARD+"/Duduzzing/Dudu-Modeler/DM.png").exists()){
+                var data = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
+                var count;
 
-download( "https://raw.githubusercontent.com/Duduzzing/MCPE-ModPE-Script/master/Dudu-Modeler/DM.png" ,"/Duduzzing/Dudu-Modeler/DM.png");
+                while ((count = bis.read(data)) != -1) {
+                    java.lang.Thread.sleep(1);
+                    bos.write(data, 0, count);
 
+                }
+                urlConn.disconnect();
+                bos.flush();
+                bos.close();
+                bis.close();
 
-}
-
-
-
-function readURL(url, ischangelog){
-  try{
-    var arr = [];
-    
-    var br = new java.io.BufferedReader(new java.io.InputStreamReader(java.net.URL(url).openStream(), "UTF-8"));
-    
-    var temp = "";
-    
-    while((temp = br.readLine()) != null){
-    
-    	if(ischangelog){
-        if(temp == "------------------------------"){
-          break;
-          }
-     }
-     
-        arr.push(temp+"\n");
-      
-    }
-    br.close();
-    
-    return arr.join("");  
-  
-  } catch(e){
-  }
-}
-
-
-
-function checkUpdate(){
-  new java.lang.Thread(new java.lang.Runnable({
-    run: function(){
-      try{
-      	
-        var newVer = readURL("https://raw.githubusercontent.com/Duduzzing/MCPE-ModPE-Script/master/Dudu-Modeler/Version", false);
-        var log = readURL("https://raw.githubusercontent.com/Duduzzing/MCPE-ModPE-Script/master/Dudu-Modeler/Changelog-"+language, true);
-             
-        if(time == null){
-          if(parseInt(newVer) > parseInt(version))
-            showDialog(newVer, log);
-        } else if(new Date().getTime() - time > 86400000 * 7){
-         if(parseInt(newVer) > parseInt(version)){
-            showDialog(newVer, log);
-            time = null;
-          }
+            } catch (e) {
+                error(e);
+            } finally {
+                if (endFunc != undefined) endFunc();
+            }
         }
-      } catch(e){
-      	
-      	return "";
-//no Internet Connection, probabaly
-      }
-    }
-  })).start();
+    })).start();
 }
 
 
-function showDialog(newVersion, changelog){
+
+if (!File(SDCARD + "/Duduzzing/Dudu-Modeler/DM.png").exists()) {
+
+    download("https://raw.githubusercontent.com/Duduzzing/MCPE-ModPE-Script/master/Dudu-Modeler/DM.png", "/Duduzzing/Dudu-Modeler/DM.png");
+
+
+}
+
+
+
+function readURL(url, ischangelog) {
+    try {
+        var arr = [];
+
+        var br = new java.io.BufferedReader(new java.io.InputStreamReader(java.net.URL(url).openStream(), "UTF-8"));
+
+        var temp = "";
+
+        while ((temp = br.readLine()) != null) {
+
+            if (ischangelog) {
+                if (temp == "------------------------------") {
+                    break;
+                }
+            }
+
+            arr.push(temp + "\n");
+
+        }
+        br.close();
+
+        return arr.join("");
+
+    } catch (e) {}
+}
+
+
+
+function checkUpdate() {
+    new java.lang.Thread(new java.lang.Runnable({
+        run: function () {
+            try {
+
+                var newVer = readURL("https://raw.githubusercontent.com/Duduzzing/MCPE-ModPE-Script/master/Dudu-Modeler/Version", false);
+                var log = readURL("https://raw.githubusercontent.com/Duduzzing/MCPE-ModPE-Script/master/Dudu-Modeler/Changelog-" + language, true);
+
+                if (time == null) {
+                    if (parseInt(newVer) > parseInt(version)) showDialog(newVer, log);
+                } else if (new Date().getTime() - time > 86400000 * 7) {
+                    if (parseInt(newVer) > parseInt(version)) {
+                        showDialog(newVer, log);
+                        time = null;
+                    }
+                }
+            } catch (e) {
+
+                return "";
+                //no Internet Connection, probabaly
+            }
+        }
+    })).start();
+}
+
+
+function showDialog(newVersion, changelog) {
     CTX.runOnUiThread(new java.lang.Runnable({
         run: function () {
             try {
                 var dialog = new android.app.AlertDialog.Builder(CTX)
                 var layout = new LinearLayout(CTX);
-                
+
                 layout.setOrientation(1);
-                                
+
                 var text1 = new TextView(CTX);
 
-                text1.setText(lang.newVersion+": "+newVersion);
-                
+                text1.setText(lang.newVersion + ": " + newVersion);
+
                 layout.addView(text1);
-                
+
                 var text2 = new TextView(CTX);
 
-                text2.setText(lang.changelog+":\n"+changelog);
-                
+                text2.setText(lang.changelog + ":\n" + changelog);
+
                 layout.addView(text2);
-                
+
                 var checkText = new TextView(CTX);
                 checkText.setText(lang.dontShowForWeek);
-                
+
                 layout.addView(checkText);
-                
+
                 var check = new android.widget.CheckBox(CTX);
-                
-                layout.addView(check);                                                                        
+
+                layout.addView(check);
                 var scroll = new android.widget.ScrollView(CTX);
 
                 scroll.addView(layout);
 
-                dialog.setTitle("<"+lang.scriptName+"> "+lang.newVersion);
+                dialog.setTitle("<" + lang.scriptName + "> " + lang.newVersion);
 
                 dialog.setView(scroll);
 
                 dialog.setNegativeButton(lang.no, new android.content.DialogInterface.OnClickListener({
                     onClick: function () {
-try{
-                     if(check.isChecked()){
-                     	toast(lang.dontShowForWeek);
-                     	time = new Date().getTime();
-                    } 
-                    }catch(r){
-                    	error(r);
-                    	}   
+                        try {
+                            if (check.isChecked()) {
+                                toast(lang.dontShowForWeek);
+                                time = new Date().getTime();
+                            }
+                        } catch (r) {
+                            error(r);
+                        }
 
                     }
-                }) );
+                }));
 
                 dialog.setPositiveButton(lang.update, new android.content.DialogInterface.OnClickListener({
                     onClick: function () {
 
-                    toast( lang.update)
-                        
+                        toast(lang.update)
+
                         //todo show webview
 
                     }
                 }));
-                
+
                 dialog.create();
                 dialog.show();
             } catch (err) {
@@ -2846,10 +2840,10 @@ function customEditText(hint, title, type, isInt, isFloat, isPositive) {
                                 btn.setText(text + "");
 
                                 updateModel();
-                                
-                        	textureMapLayer[modelTree.indexOf(selectedBox)+1] = getBoxTexture(modelTree.indexOf(selectedBox));
-                        
-                        	updateTextureMap();
+
+                                textureMapLayer[modelTree.indexOf(selectedBox) + 1] = getBoxTexture(modelTree.indexOf(selectedBox));
+
+                                updateTextureMap();
 
                                 if (type == "name") rightBottomLayout.getChildAt(modelTree.indexOf(selectedBox) + 1).setText(text);
 
@@ -2992,9 +2986,9 @@ function FileList(context) {
         var file = new File(path);
         var files = file.listFiles();
 
-        if (files == null) return false;       
+        if (files == null) return false;
 
-        if (path !== SDCARD+"/") folderList.push(".../");
+        if (path !== SDCARD + "/") folderList.push(".../");
 
         for (var a in files) {
 
@@ -3076,7 +3070,7 @@ function FileList(context) {
 
         if (thePath == null || thePath.length == 0) {
 
-            thePath = SDCARD+"/";
+            thePath = SDCARD + "/";
 
         } else {
 
@@ -3160,3 +3154,6 @@ function FileList(context) {
     this.theListView.setOnItemClickListener(listener);
 
 }
+
+
+
