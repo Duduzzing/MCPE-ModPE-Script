@@ -2622,8 +2622,8 @@ function checkUpdate(){
     run: function(){
       try{
         var newVer, log;
-        newVer = readURL("https://raw.githubusercontent.com/Duduzzing/MCPE-ModPE-Script/master/Dudu-Modeler/version", false);
-        log = readURL("https://raw.githubusercontent.com/Duduzzing/MCPE-ModPE-Script/master/changeLog%20"+language, true);
+        newVer = readURL("https://raw.githubusercontent.com/Duduzzing/MCPE-ModPE-Script/master/Dudu-Modeler/Version", false);
+        log = readURL("https://raw.githubusercontent.com/Duduzzing/MCPE-ModPE-Script/master/Changelog-"+language, true);
         
         var time = null; //temp
                 
