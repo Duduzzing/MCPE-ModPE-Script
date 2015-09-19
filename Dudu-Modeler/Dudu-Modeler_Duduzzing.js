@@ -7,7 +7,7 @@
  * 
  */
 
-var version = "1.0";
+var version = "0.9";
 
 var SDCARD = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
 
@@ -75,10 +75,12 @@ var tempLang = {
     	   scriptName: "Dudu-Modeler",
         yes: "Yes",
         No: "No",
+        update: "Update",
+        dontShowForWeek: "Don't show for week",
         saveNoti: "<Dudu-Modeler> Saved",
         copyNoti: "Box copied",
         newLevelNoti: "<Dudu-Modeler> Type \"\/start\" to receive the item to start making model (ItemId: 550)",
-        changeLog: "ChangeLog",
+        changelog: "Changelog",
         newVersion: "New version",
         modelPart: {
             head: "head",
@@ -204,10 +206,12 @@ var tempLang = {
     	   scriptName: "두두 모델러",
         yes: "예",
         no: "아니요",
+        update: "업데이트",
+        dontShowForWeek: "일주일간 보지 않기",
         saveNoti: "<Dudu-Modeler> 저장됨",
         copyNoti: "박스가 복사됬습니다",
         newLevelNoti: "<두두-모델러> 커맨드 \"\/start\" 로 모델링을 시작할 아이템을 얻으세요 (아이템코드: 550)",
-        changeLog: "체인지로그",
+        changelog: "체인지로그",
         newVersion: "새 버전",
         modelPart: {
             head: "head",
@@ -311,7 +315,7 @@ var tempLang = {
             },
             modelEntityDied: {
                 title: "모델 엔티티가 죽었어요! 어떡하죠?",
-                text: "\"모델 엔티티 다시 소환하기\" 버튼으로 재소환하세요"
+                text: "\"모델 엔티티 소환하기\" 버튼으로 재소환하세요"
             },
             canModelEntityStare: {
                 title: "모델 엔티티가 한 방향만 바라보게 할 수는 없나요?",
@@ -396,20 +400,22 @@ function toast(str) {
 
 
 function isVar(str) {
+    if (/\W/g.test(str)){
+    	return false;
+    	}
     try {
         eval("var " + str + ";");
     } catch (e) {
         return false;
     }
-    if (/\W/g.test(str)){
-    	return false;
-    	}
     return true;
 }
 
 
 /////////////////////////////////////////////////////////////
 
+var time = null;
+//auto update
 
 var modelMaker = 550;
 
@@ -2426,6 +2432,8 @@ function modelEntityAI() {
 
 
 function newLevel() {
+	
+checkUpdate(); 	
 
     clientMessage(lang.newLevelNoti);
 
@@ -2553,8 +2561,6 @@ function download(url, path, endFunc) {
         var bis = new java.io.BufferedInputStream(URL.openStream());
         var bos = new java.io.BufferedOutputStream(new java.io.FileOutputStream(file));
 
-        var downloadDialog;
-
         var data = java.lang.reflect.Array.newInstance(java.lang.Byte.TYPE, 1024);
         var count;
         
@@ -2589,7 +2595,7 @@ download( "https://raw.githubusercontent.com/Duduzzing/MCPE-ModPE-Script/master/
 
 
 
-function readURL(url, isChangeLog){
+function readURL(url, ischangelog){
   try{
     var arr = [];
     
@@ -2599,12 +2605,13 @@ function readURL(url, isChangeLog){
     
     while((temp = br.readLine()) != null){
     
-    	if(isChangeLog){
+    	if(ischangelog){
         if(temp == "------------------------------"){
           break;
           }
      }
-        arr.push((content == "" ? temp : "\n" + temp));
+     
+        arr.push(temp+"\n");
       
     }
     br.close();
@@ -2621,12 +2628,10 @@ function checkUpdate(){
   new java.lang.Thread(new java.lang.Runnable({
     run: function(){
       try{
-        var newVer, log;
-        newVer = readURL("https://raw.githubusercontent.com/Duduzzing/MCPE-ModPE-Script/master/Dudu-Modeler/Version", false);
-        log = readURL("https://raw.githubusercontent.com/Duduzzing/MCPE-ModPE-Script/master/Changelog-"+language, true);
-        
-        var time = null; //temp
-                
+      	
+        var newVer = readURL("https://raw.githubusercontent.com/Duduzzing/MCPE-ModPE-Script/master/Dudu-Modeler/Version", false);
+        var log = readURL("https://raw.githubusercontent.com/Duduzzing/MCPE-ModPE-Script/master/Dudu-Modeler/Changelog-"+language, true);
+             
         if(time == null){
           if(parseInt(newVer) > parseInt(version))
             showDialog(newVer, log);
@@ -2637,14 +2642,16 @@ function checkUpdate(){
           }
         }
       } catch(e){
-        clientMessage(e + " " + e.lineNumber);
+      	
+      	return "";
+//no Internet Connection, probabaly
       }
     }
   })).start();
 }
 
 
-function showDialog(newVersion, changeLog){
+function showDialog(newVersion, changelog){
     CTX.runOnUiThread(new java.lang.Runnable({
         run: function () {
             try {
@@ -2653,7 +2660,6 @@ function showDialog(newVersion, changeLog){
                 
                 layout.setOrientation(1);
                                 
-
                 var text1 = new TextView(CTX);
 
                 text1.setText(lang.newVersion+": "+newVersion);
@@ -2662,24 +2668,44 @@ function showDialog(newVersion, changeLog){
                 
                 var text2 = new TextView(CTX);
 
-                text2.setText(lang.changeLog+": "+changeLog);
+                text2.setText(lang.changelog+":\n"+changelog);
                 
                 layout.addView(text2);
-                                                
+                
+                var checkText = new TextView(CTX);
+                checkText.setText(lang.dontShowForWeek);
+                
+                layout.addView(checkText);
+                
+                var check = new android.widget.CheckBox(CTX);
+                
+                layout.addView(check);                                                                        
                 var scroll = new android.widget.ScrollView(CTX);
 
                 scroll.addView(layout);
 
-                dialog.setTitle(lang.scriptName);
+                dialog.setTitle("<"+lang.scriptName+"> "+lang.newVersion);
 
                 dialog.setView(scroll);
 
-                dialog.setNegativeButton(lang.no, null);
+                dialog.setNegativeButton(lang.no, new android.content.DialogInterface.OnClickListener({
+                    onClick: function () {
+try{
+                     if(check.isChecked()){
+                     	toast(lang.dontShowForWeek);
+                     	time = new Date().getTime();
+                    } 
+                    }catch(r){
+                    	error(r);
+                    	}   
 
-                dialog.setPositiveButton(lang.yes, new android.content.DialogInterface.OnClickListener({
+                    }
+                }) );
+
+                dialog.setPositiveButton(lang.update, new android.content.DialogInterface.OnClickListener({
                     onClick: function () {
 
-                        android.widget.Toast.makeText(CTX, "Closed", android.widget.Toast.LENGTH_LONG).show();
+                    toast( lang.update)
                         
                         //todo show webview
 
