@@ -13,8 +13,6 @@ var SDCARD = android.os.Environment.getExternalStorageDirectory().getAbsolutePat
 
 var CTX = com.mojang.minecraftpe.MainActivity.currentMainActivity.get();
 
-var PECTX = CTX.createPackageContext("com.mojang.minecraftpe", android.content.Context.CONTEXT_IGNORE_SECURITY);
-
 var tempScreenWidth = CTX.getWindowManager().getDefaultDisplay().getWidth();
 
 var tempScreenHeight = CTX.getWindowManager().getDefaultDisplay().getHeight();
@@ -430,7 +428,7 @@ var modelTree = [];
 //push(new addBox())
 
 var selectedBox = null;
-//고른 박스 오브젝트
+//selected box(addBox()) obj
 
 var skinBitmap = null;
 
@@ -442,23 +440,23 @@ var textureSize = {
 var modelName = null;
 
 var textureMapLayer = [];
-//텍스쳐맵레이어 드로어블 배열
+//textureMap drawable array
 
 var textureMapBtn;
-//텍스쳐맵
+//the textureMap
 
 var leftWindow;
 var rightTopWindow;
 var rightBottomWindow;
 
 var leftLayout;
-//선택된 박스에딧텍스트들 보관
+//editTexts
 
 var rightBottomLayout;
-//모델링 버튼들 추가되는곳
+//where box buttons contains
 
 var cloneBox = null;
-//복사된 addBox() 객체
+//cloned addBox() obj
 
 var theRenderer = Renderer.createHumanoidRenderer();
 
@@ -466,6 +464,8 @@ var theSkin = null;
 //the skin name
 
 var theSkinDir = null;
+//the skin dir
+
 /////////////////////////////////////////////////////////////
 
 
@@ -2623,9 +2623,9 @@ function checkUpdate(){
       try{
         var newVer, log;
         newVer = readURL("https://raw.githubusercontent.com/Duduzzing/MCPE-ModPE-Script/master/Dudu-Modeler/version", false);
-        log = readURL("https://raw.githubusercontent.com/Duduzzing/MCPE-ModPE-Script/master/Survival-Kit/update-info/changeLog%20"+language, true);
+        log = readURL("https://raw.githubusercontent.com/Duduzzing/MCPE-ModPE-Script/master/changeLog%20"+language, true);
         
-        var time = null;
+        var time = null; //temp
                 
         if(time == null){
           if(parseInt(newVer) > parseInt(version))
@@ -2680,6 +2680,8 @@ function showDialog(newVersion, changeLog){
                     onClick: function () {
 
                         android.widget.Toast.makeText(CTX, "Closed", android.widget.Toast.LENGTH_LONG).show();
+                        
+                        //todo show webview
 
                     }
                 }));
