@@ -63,13 +63,14 @@ var View = android.view.View;
 
 var isPro = CTX.getPackageName().equals("net.zhuoweizhang.mcpelauncher.pro");
 
+var language = java.util.Locale.getDefault().getLanguage();
+
 
 var bugReportUrl = "http://goo.gl/forms/LCb0JyWxz1";
 
-var adflyUrl = "http://adf.ly/1OcMWU";
+var adflyUrl = (language == "ko" ? "http://adf.ly/1OcySZ" : "http://adf.ly/1OcxnQ");
 
 
-var language = java.util.Locale.getDefault().getLanguage();
 
 var tempLang = {
 
