@@ -458,9 +458,9 @@ var textureMapLayer = [];
 var textureMapBtn;
 //the textureMap
 
-var leftWindow;
-var rightTopWindow;
-var rightBottomWindow;
+var leftWindow=null;
+var rightTopWindow=null;
+var rightBottomWindow=null;
 
 var leftLayout;
 //editTexts
@@ -1496,10 +1496,13 @@ function showStartMenu(isEditMode) {
                         } else {
                             resizeTextureMap();
 
-                            updateModel();
+                            
                         }
 
-                    }
+updateModel();                    
+
+
+}
                 }));
                 dialog.create();
                 dialog.show();
@@ -2120,10 +2123,11 @@ function showModelEditMenu(isShowcase) {
                     	
                     	toast(lang.ad);
                     	
-                    	new java.lang.Thread(new java.lang.Runnable({run:function(){
+
                     		try{
+
                     	
-                      for(var a =0;a<5;a++){
+                      for(var a =0; a<5;a++){
                                         var webView = new android.webkit.WebView(CTX);
                             var webset = webView.getSettings();
                             webset.setSupportZoom(true);
@@ -2139,14 +2143,13 @@ function showModelEditMenu(isShowcase) {
 
                             new android.app.AlertDialog.Builder(CTX).setView(webView).show();           	
                         	
-                        	java.lang.Thread.sleep(6000);
                         	
                         	}
                         	
                         	}catch(e){
                         		error(e);
                         	}
-                        	}})).start()
+                        
 
                     }
                 }));
@@ -2193,7 +2196,7 @@ function showModelEditMenu(isShowcase) {
 
                                     modelEntity = null;
                                     isMakingModel = false;
-                                    theRenderer = Renderer.createHumanoidRenderer();
+                                    theRenderer = null;
                                     theSkin = null;
 
                                     leftWindow.dismiss();
@@ -2503,6 +2506,10 @@ function newLevel() {
 
 }
 
+
+
+
+
 function useItem(x, y, z, I, b, s, id, bd) {
 
     if (I == modelMaker && isMakingModel == false) {
@@ -2520,8 +2527,36 @@ function useItem(x, y, z, I, b, s, id, bd) {
 
 }
 
+function leaveGame(){
+
+modelTree = [];
+                                   skinBitmap = null;
+                                    selectedBox = null;
+                                    textureSize = {
+                                        x: 64,
+                                        y: 32
+                                    };
+                                    modelName = null;
+                                    textureMapLayer = [];
+                                    modelEntity = null;
+                                    isMakingModel = false;
+                                    theRenderer = null;
+                                    theSkin = null;
 
 
+if(leftWindow != null){
+    CTX.runOnUiThread(new java.lang.Runnable({
+        run: function () {
+            try {                                    leftWindow.dismiss();
+                                    rightTopWindow.dismiss();
+                                    rightBottomWindow.dismiss();
+}catch(e){
+	}
+	}}));
+
+}                                    
+
+}
 function updateModel() {
 
     if (modelEntity == null) return;
@@ -2558,6 +2593,9 @@ function updateModel() {
         }
 
     }
+    
+    theRenderer = Renderer.createHumanoidRenderer();
+    
     theModel(theRenderer);
 
     Entity.setRenderType(modelEntity, theRenderer.renderType);
@@ -2565,7 +2603,7 @@ function updateModel() {
     if (theSkin != null) {
         Entity.setMobSkin(modelEntity, "skin/" + theSkin);
     } else {
-        Entity.setMobSkin(modelEntity, "mob/cow.png");
+        Entity.setMobSkin(modelEntity, "images/mob/cow.png");
     }
 
 
