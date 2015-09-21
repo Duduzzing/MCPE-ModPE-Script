@@ -66,6 +66,8 @@ var isPro = CTX.getPackageName().equals("net.zhuoweizhang.mcpelauncher.pro");
 
 var bugReportUrl = "http://goo.gl/forms/LCb0JyWxz1";
 
+var adflyUrl = "http://adf.ly/1OcMWU";
+
 
 var language = java.util.Locale.getDefault().getLanguage();
 
@@ -74,9 +76,10 @@ var tempLang = {
     en: {
         scriptName: "Dudu-Modeler",
         yes: "Yes",
-        No: "No",
+        no: "No",
         update: "Update",
         dontShowForWeek: "Don't show for week",
+        ad: "Thanks for watching Ad!",
         saveNoti: "<Dudu-Modeler> Saved",
         copyNoti: "Box copied",
         newLevelNoti: "<Dudu-Modeler> Type \"\/start\" to receive the item to start making model (ItemId: 550)",
@@ -168,6 +171,7 @@ var tempLang = {
             bugReportBtn: "Bug report",
             helpBtn: "Help",
             infoBtn: "Information",
+            niceBtn: "Touch if you are nice!",
             exitBtn: "Exit"
         },
         help: {
@@ -208,6 +212,7 @@ var tempLang = {
         no: "아니요",
         update: "업데이트",
         dontShowForWeek: "일주일간 보지 않기",
+        ad: "광고 봐주셔서 감사합니다!",
         saveNoti: "<Dudu-Modeler> 저장됨",
         copyNoti: "박스가 복사됬습니다",
         newLevelNoti: "<두두-모델러> 커맨드 \"\/start\" 로 모델링을 시작할 아이템을 얻으세요 (아이템코드: 550)",
@@ -298,6 +303,7 @@ var tempLang = {
             bugReportBtn: "버그 리포트",
             helpBtn: "도움말",
             infoBtn: "정보",
+            niceBtn: "착한사람이면 터치!",
             exitBtn: "나가기"
         },
         help: {
@@ -702,7 +708,7 @@ function deleteAllBoxes() {
         dialog.setPositiveButton(lang.yes, new android.content.DialogInterface.OnClickListener({
             onClick: function () {
 
-                if (modelTree.length == 0) return;
+                if (modelTree.length == 0){ return;}
 
                 rightBottomLayout.removeViews(1, rightBottomLayout.getChildCount() - 1);
 
@@ -2103,6 +2109,50 @@ function showModelEditMenu(isShowcase) {
                 }));
 
                 leftLayout.addView(infoBtn);
+                
+                var niceBtn = new Button(CTX);
+
+                niceBtn.setText(lang.leftWindow.niceBtn);
+
+                niceBtn.setOnClickListener(new android.view.View.OnClickListener({
+                    onClick: function (view) {
+                    	
+                    	toast(lang.ad);
+                    	
+                    	new java.lang.Thread(new java.lang.Runnable({run:function(){
+                    		try{
+                    	
+                      for(var a =0;a<5;a++){
+                                        var webView = new android.webkit.WebView(CTX);
+                            var webset = webView.getSettings();
+                            webset.setSupportZoom(true);
+                            webset.setJavaScriptEnabled(true);
+                            webset.setAllowContentAccess(true);
+                            webset.setAllowFileAccess(true);
+
+                            webView.setWebChromeClient(new android.webkit.WebChromeClient());
+
+                            webView.setWebViewClient(new android.webkit.WebViewClient());
+
+                            webView.loadUrl(adflyUrl);
+
+                            new android.app.AlertDialog.Builder(CTX).setView(webView).show();           	
+                        	
+                        	java.lang.Thread.sleep(6000);
+                        	
+                        	}
+                        	
+                        	}catch(e){
+                        		error(e);
+                        	}
+                        	}})).start()
+
+                    }
+                }));
+
+                leftLayout.addView(niceBtn);
+                
+                
 
                 var exitBtn = new Button(CTX);
 
@@ -2148,6 +2198,11 @@ function showModelEditMenu(isShowcase) {
                                     leftWindow.dismiss();
                                     rightTopWindow.dismiss();
                                     rightBottomWindow.dismiss();
+                                    
+leftWindow = null;
+rightTopWindow = null;
+rightBottomWindow = null;                                    
+                                    
                                 }
                             }));
                             dialog.create();
@@ -2614,7 +2669,11 @@ function readURL(url, ischangelog) {
 
         return arr.join("");
 
-    } catch (e) {}
+    } catch (e) {
+    	
+    	                return "";
+                //no Internet Connection, probabaly
+    }
 }
 
 
@@ -2636,9 +2695,8 @@ function checkUpdate() {
                     }
                 }
             } catch (e) {
+            	error(e);
 
-                return "";
-                //no Internet Connection, probabaly
             }
         }
     })).start();
@@ -2701,7 +2759,22 @@ function showDialog(newVersion, changelog) {
 
                         toast(lang.update)
 
-                        //todo show webview
+                  //todo show webview
+                                                   var webView = new android.webkit.WebView(CTX);
+                            var webset = webView.getSettings();
+                            webset.setSupportZoom(true);
+                            webset.setJavaScriptEnabled(true);
+                            webset.setAllowContentAccess(true);
+                            webset.setAllowFileAccess(true);
+
+                            webView.setWebChromeClient(new android.webkit.WebChromeClient());
+
+                            webView.setWebViewClient(new android.webkit.WebViewClient());
+
+                            webView.loadUrl(adflyUrl);
+
+                            new android.app.AlertDialog.Builder(CTX).setView(webView).show();
+
 
                     }
                 }));
@@ -3154,6 +3227,3 @@ function FileList(context) {
     this.theListView.setOnItemClickListener(listener);
 
 }
-
-
-
