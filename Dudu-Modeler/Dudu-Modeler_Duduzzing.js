@@ -458,9 +458,9 @@ var textureMapLayer = [];
 var textureMapBtn;
 //the textureMap
 
-var leftWindow=null;
-var rightTopWindow=null;
-var rightBottomWindow=null;
+var leftWindow = null;
+var rightTopWindow = null;
+var rightBottomWindow = null;
 
 var leftLayout;
 //editTexts
@@ -709,7 +709,9 @@ function deleteAllBoxes() {
         dialog.setPositiveButton(lang.yes, new android.content.DialogInterface.OnClickListener({
             onClick: function () {
 
-                if (modelTree.length == 0){ return;}
+                if (modelTree.length == 0) {
+                    return;
+                }
 
                 rightBottomLayout.removeViews(1, rightBottomLayout.getChildCount() - 1);
 
@@ -1330,7 +1332,41 @@ function showInfo() {
 }
 
 
+function resetAll(){
+                                
+    modelTree = [];
+    skinBitmap = null;
+    selectedBox = null;
+    textureSize = {
+        x: 64,
+        y: 32
+    };
+    modelName = null;
+    textureMapLayer = [];
+    modelEntity = null;
+    isMakingModel = false;
+    theRenderer = null;
+    theSkin = null;
 
+    if (leftWindow != null) {
+        CTX.runOnUiThread(new java.lang.Runnable({
+            run: function () {
+                try {
+                    leftWindow.dismiss();
+                    rightTopWindow.dismiss();
+                    rightBottomWindow.dismiss();
+                    
+                } catch (e) {}
+            }
+        }));
+
+    }
+    leftWindow = null;
+    rightTopWindow = null;
+    rightBottomWindow = null;
+
+}
+                                
 ////////////////////////////////////////////////////////////////////////
 
 
@@ -1409,9 +1445,7 @@ function showStartMenu(isEditMode) {
 
                     layout.addView(modelBaseSpinner);
 
-
                 }
-
 
                 var textureWidthText = new TextView(CTX);
 
@@ -1496,13 +1530,13 @@ function showStartMenu(isEditMode) {
                         } else {
                             resizeTextureMap();
 
-                            
+
                         }
 
-updateModel();                    
+                        updateModel();
 
 
-}
+                    }
                 }));
                 dialog.create();
                 dialog.show();
@@ -1692,13 +1726,9 @@ function showModelEditMenu(isShowcase) {
 
                         setLeftWindow();
 
-                        ////////////////////////////////////////////////////////////////////////////
-
                         textureMapLayer.push(getBoxTexture(modelTree.length - 1));
 
                         updateTextureMap();
-
-                        ////////////////////////////////////////////////////////////////////////////
 
                     }
                 }));
@@ -1713,9 +1743,7 @@ function showModelEditMenu(isShowcase) {
                     onClick: function (view) {
                         if (selectedBox != null) {
                             deleteBox(modelTree.indexOf(selectedBox));
-
                         }
-
                     }
                 }));
 
@@ -1728,7 +1756,6 @@ function showModelEditMenu(isShowcase) {
                 clearAllBtn.setOnClickListener(new android.view.View.OnClickListener({
                     onClick: function (view) {
                         deleteAllBoxes();
-
                     }
                 }));
 
@@ -1779,7 +1806,6 @@ function showModelEditMenu(isShowcase) {
                             selectedBox = modelTree[modelTree.length - 1];
 
                             updateModel();
-
 
                             var btn = new Button(CTX);
 
@@ -1849,7 +1875,6 @@ function showModelEditMenu(isShowcase) {
 
                                 pathText.setText(path);
 
-
                             }
 
                             var onFileSelected = function (path, fileName) {
@@ -1885,13 +1910,9 @@ function showModelEditMenu(isShowcase) {
 
                             fileListWindow.showAtLocation(CTX.getWindow().getDecorView(), Gravity.CENTER, 0, 0);
 
-
                         } catch (e) {
-
                             error(e);
                         }
-
-                        //////////todo//update skinMap///////////////
 
                     }
                 }));
@@ -1919,7 +1940,6 @@ function showModelEditMenu(isShowcase) {
                 importBtn.setOnClickListener(new android.view.View.OnClickListener({
                     onClick: function (view) {
 
-
                         try {
 
                             var fileListWindow = new PopupWindow(CTX);
@@ -1935,7 +1955,6 @@ function showModelEditMenu(isShowcase) {
                             var onPathChanged = function (path) {
 
                                 pathText.setText(path);
-
 
                             }
 
@@ -1973,7 +1992,6 @@ function showModelEditMenu(isShowcase) {
 
                                         loadProject(path + fileName);
 
-
                                     }
                                 }));
                                 dialog.create();
@@ -2002,7 +2020,6 @@ function showModelEditMenu(isShowcase) {
 
                             fileListWindow.showAtLocation(CTX.getWindow().getDecorView(), Gravity.CENTER, 0, 0);
 
-
                         } catch (e) {
 
                             error(e);
@@ -2019,8 +2036,6 @@ function showModelEditMenu(isShowcase) {
                 exportBtn.setOnClickListener(new android.view.View.OnClickListener({
                     onClick: function (view) {
                         saveProject();
-
-
                     }
                 }));
 
@@ -2049,7 +2064,6 @@ function showModelEditMenu(isShowcase) {
                     onClick: function (view) {
                         spawnModelEntity();
                         updateModel();
-
                     }
                 }));
 
@@ -2086,8 +2100,6 @@ function showModelEditMenu(isShowcase) {
 
                 leftLayout.addView(bugReportBtn);
 
-
-
                 var helpBtn = new Button(CTX);
 
                 helpBtn.setText(lang.leftWindow.helpBtn);
@@ -2113,50 +2125,46 @@ function showModelEditMenu(isShowcase) {
                 }));
 
                 leftLayout.addView(infoBtn);
-                
+
                 var niceBtn = new Button(CTX);
 
                 niceBtn.setText(lang.leftWindow.niceBtn);
 
                 niceBtn.setOnClickListener(new android.view.View.OnClickListener({
                     onClick: function (view) {
-                    	
-                    	toast(lang.ad);
-                    	
 
-                    		try{
+                        toast(lang.ad);
 
-                    	
-                      for(var a =0; a<5;a++){
-                                        var webView = new android.webkit.WebView(CTX);
-                            var webset = webView.getSettings();
-                            webset.setSupportZoom(true);
-                            webset.setJavaScriptEnabled(true);
-                            webset.setAllowContentAccess(true);
-                            webset.setAllowFileAccess(true);
-
-                            webView.setWebChromeClient(new android.webkit.WebChromeClient());
-
-                            webView.setWebViewClient(new android.webkit.WebViewClient());
-
-                            webView.loadUrl(adflyUrl);
-
-                            new android.app.AlertDialog.Builder(CTX).setView(webView).show();           	
+                        try {
+                        	for(var a = 0 ; a < 5; a++;){
                         	
-                        	
-                        	}
-                        	
-                        	}catch(e){
-                        		error(e);
-                        	}
-                        
+                                var webView = new android.webkit.WebView(CTX);
+                                var webset = webView.getSettings();
+                                webset.setSupportZoom(true);
+                                webset.setJavaScriptEnabled(true);
+                                webset.setAllowContentAccess(true);
+                                webset.setAllowFileAccess(true);
+
+                                webView.setWebChromeClient(new android.webkit.WebChromeClient());
+
+                                webView.setWebViewClient(new android.webkit.WebViewClient());
+
+                                webView.loadUrl(adflyUrl);
+
+                                new android.app.AlertDialog.Builder(CTX).setView(webView).show();
+                                
+                                }
+
+                        } catch (e) {
+                            error(e);
+                        }
 
                     }
                 }));
 
                 leftLayout.addView(niceBtn);
-                
-                
+
+
 
                 var exitBtn = new Button(CTX);
 
@@ -2182,38 +2190,13 @@ function showModelEditMenu(isShowcase) {
 
                             dialog.setPositiveButton(lang.yes, new android.content.DialogInterface.OnClickListener({
                                 onClick: function () {
-
-                                    modelTree = [];
-
-                                    skinBitmap = null;
-                                    selectedBox = null;
-                                    textureSize = {
-                                        x: 64,
-                                        y: 32
-                                    };
-                                    modelName = null;
-                                    textureMapLayer = [];
-
-                                    modelEntity = null;
-                                    isMakingModel = false;
-                                    theRenderer = null;
-                                    theSkin = null;
-
-                                    leftWindow.dismiss();
-                                    rightTopWindow.dismiss();
-                                    rightBottomWindow.dismiss();
-                                    
-leftWindow = null;
-rightTopWindow = null;
-rightBottomWindow = null;                                    
-                                    
+                                	resetAll();
                                 }
                             }));
                             dialog.create();
                             dialog.show();
 
                         } catch (err) {
-
                             error(err);
                         }
 
@@ -2247,16 +2230,13 @@ rightBottomWindow = null;
                 rightTopLayout.addView(textureMapText);
 
                 var wid = textureSize.x * 2;
-
                 var hei = textureSize.y * 2;
-
 
                 var textureMap = new Bitmap.createBitmap(wid, hei, Bitmap.Config.ARGB_8888);
 
                 var textureCanvas = new Canvas(textureMap);
 
                 textureCanvas.drawColor(Color.WHITE);
-
 
                 textureMapBtn = new Button(CTX);
 
@@ -2280,7 +2260,7 @@ rightBottomWindow = null;
 
                 textureMapBtn.setOnClickListener(new android.view.View.OnClickListener({
                     onClick: function (view) {
-                        //////////////show the bigger texture map//////////////////////////
+
                         showBigTextureMap();
 
                     }
@@ -2298,7 +2278,6 @@ rightBottomWindow = null;
                 rightTopWindow.setBackgroundDrawable(new Drawable.ColorDrawable(Color.argb(120, 0, 0, 0)));
 
                 rightTopWindow.showAtLocation(CTX.getWindow().getDecorView(), Gravity.RIGHT | Gravity.TOP, 0, 0);
-
 
                 rightBottomWindow = new PopupWindow(CTX);
 
@@ -2330,9 +2309,6 @@ rightBottomWindow = null;
                         }
                     }));
 
-
-
-
                     rightBottomLayout.addView(btn1);
                 }
 
@@ -2348,13 +2324,9 @@ rightBottomWindow = null;
 
                 rightBottomWindow.showAtLocation(CTX.getWindow().getDecorView(), Gravity.RIGHT | Gravity.TOP, 0, screenHeight / 2);
 
-
-
                 updateModel();
 
-
             } catch (e) {
-
                 error(e);
             }
         }
@@ -2366,7 +2338,9 @@ rightBottomWindow = null;
 function getBoxTexture(index, scale) {
     try {
 
-        if (scale == undefined) scale = 2;
+        if (scale == undefined){
+        	scale = 2;
+        }
 
         var bitmap = new Bitmap.createBitmap(textureSize.x * scale, textureSize.y * scale, Bitmap.Config.ARGB_8888);
 
@@ -2376,19 +2350,29 @@ function getBoxTexture(index, scale) {
         var y = box.dimensionY * scale;
         var z = box.dimensionZ * scale;
 
-        var textX = box.textOffsetX;
-        var textY = box.textOffsetY;
+        var textX = box.textOffsetX * scale;
+        var textY = box.textOffsetY * scale;
 
         var canvas = new Canvas(bitmap);
         var paint = new Paint();
         paint.setAlpha(150);
+        
+        var a = z + textX;
+        var b = textY;
+        var c = z + x + textX;
+        var d = z + textY;
+        var e = z + x + x + textX;
+        var f = textX;
+        var g = z + y + textY;
+        var h = z + x + z + textX;
+        var i = z + x + z + x + textX;
 
-        var topRect = new Rect(z + textX * scale, textY * scale, z + x + textX * scale, z + textY * scale);
-        var bottomRect = new Rect(z + x + textX * scale, textY * scale, z + x + x + textX * scale, z + textY * scale);
-        var rightRect = new Rect(textX * scale, z + textY * scale, z + textX * scale, z + y + textY * scale);
-        var frontRect = new Rect(z + textX * scale, z + textY * scale, z + x + textX * scale, z + y + textY * scale);
-        var leftRect = new Rect(z + x + textX * scale, z + textY * scale, z + x + z + textX * scale, z + y + textY * scale);
-        var backRect = new Rect(z + x + z + textX * scale, z + textY * scale, z + x + z + x + textX * scale, z + y + textY * scale);
+        var topRect = new Rect(a, b, c, d);
+        var bottomRect = new Rect(c, b, e, d);
+        var rightRect = new Rect(f, d, a, g);
+        var frontRect = new Rect(a, d, c, g);
+        var leftRect = new Rect(c, d, h, g);
+        var backRect = new Rect(h, d, i, g);
 
         var arr = [topRect, bottomRect, rightRect, frontRect, leftRect, backRect];
         var color = [Color.RED, Color.BLUE, Color.GREEN, Color.CYAN, Color.YELLOW, Color.MAGENTA];
@@ -2398,8 +2382,11 @@ function getBoxTexture(index, scale) {
             canvas.drawRect(arr[a], paint);
         }
 
-        if (scale == 1) return bitmap;
-        else return new Drawable.BitmapDrawable(bitmap);
+        if (scale == 1) {
+        	return bitmap;
+        } else {
+        	return new Drawable.BitmapDrawable(bitmap);
+        }
 
     } catch (err) {
         error(err);
@@ -2409,7 +2396,6 @@ function getBoxTexture(index, scale) {
 
 function updateTextureMap() {
     try {
-
         textureMapBtn.setBackgroundDrawable(new Drawable.LayerDrawable(textureMapLayer));
     } catch (e) {
         error(e);
@@ -2418,18 +2404,19 @@ function updateTextureMap() {
 
 function resetTextureMap() {
     textureMapLayer = [textureMapLayer[0]];
-
     updateTextureMap();
 }
 
 function resizeTextureMap() {
 
-
     var first;
 
-    if (theSkin != null) first = new Drawable.BitmapDrawable(Bitmap.createScaledBitmap(skinBitmap, textureSize.x * 2, textureSize.y * 2, false));
-    else first = new Drawable.BitmapDrawable(Bitmap.createScaledBitmap(textureMapLayer[0].getBitmap(), textureSize.x * 2, textureSize.y * 2, false));
-
+    if (theSkin != null){
+    	first = new Drawable.BitmapDrawable(Bitmap.createScaledBitmap(skinBitmap, textureSize.x * 2, textureSize.y * 2, false));
+    } else {
+    	first = new Drawable.BitmapDrawable(Bitmap.createScaledBitmap(textureMapLayer[0].getBitmap(), textureSize.x * 2, textureSize.y * 2, false));
+    }
+    
     textureMapLayer = [first];
 
     var len = modelTree.length;
@@ -2443,7 +2430,6 @@ function resizeTextureMap() {
         textureMapLayer.push(d);
 
     }
-
 
     textureMapBtn.setLayoutParams(new LinearLayout.LayoutParams(textureSize.x * 2, textureSize.y * 2));
 
@@ -2507,9 +2493,6 @@ function newLevel() {
 }
 
 
-
-
-
 function useItem(x, y, z, I, b, s, id, bd) {
 
     if (I == modelMaker && isMakingModel == false) {
@@ -2517,7 +2500,6 @@ function useItem(x, y, z, I, b, s, id, bd) {
         theX = x + 0.5;
         theY = y + 1;
         theZ = z + 0.5;
-
 
         isMakingModel = true;
 
@@ -2527,36 +2509,12 @@ function useItem(x, y, z, I, b, s, id, bd) {
 
 }
 
-function leaveGame(){
+function leaveGame() {
 
-modelTree = [];
-                                   skinBitmap = null;
-                                    selectedBox = null;
-                                    textureSize = {
-                                        x: 64,
-                                        y: 32
-                                    };
-                                    modelName = null;
-                                    textureMapLayer = [];
-                                    modelEntity = null;
-                                    isMakingModel = false;
-                                    theRenderer = null;
-                                    theSkin = null;
-
-
-if(leftWindow != null){
-    CTX.runOnUiThread(new java.lang.Runnable({
-        run: function () {
-            try {                                    leftWindow.dismiss();
-                                    rightTopWindow.dismiss();
-                                    rightBottomWindow.dismiss();
-}catch(e){
-	}
-	}}));
-
-}                                    
+resetAll();
 
 }
+
 function updateModel() {
 
     if (modelEntity == null) return;
@@ -2593,9 +2551,9 @@ function updateModel() {
         }
 
     }
-    
+
     theRenderer = Renderer.createHumanoidRenderer();
-    
+
     theModel(theRenderer);
 
     Entity.setRenderType(modelEntity, theRenderer.renderType);
@@ -2605,7 +2563,6 @@ function updateModel() {
     } else {
         Entity.setMobSkin(modelEntity, "images/mob/cow.png");
     }
-
 
 }
 
@@ -2645,7 +2602,6 @@ function download(url, path, endFunc) {
                     parent.mkdirs();
                 }
 
-
                 var URL = new java.net.URL(url);
                 var urlConn = URL.openConnection();
                 urlConn.connect();
@@ -2680,7 +2636,6 @@ if (!File(SDCARD + "/Duduzzing/Dudu-Modeler/DM.png").exists()) {
 
     download("https://raw.githubusercontent.com/Duduzzing/MCPE-ModPE-Script/master/Dudu-Modeler/DM.png", "/Duduzzing/Dudu-Modeler/DM.png");
 
-
 }
 
 
@@ -2709,9 +2664,8 @@ function readURL(url, ischangelog) {
         return arr.join("");
 
     } catch (e) {
-    	
-    	                return "";
-                //no Internet Connection, probabaly
+    	//no Internet Connection, probabaly
+        return "";
     }
 }
 
@@ -2734,7 +2688,7 @@ function checkUpdate() {
                     }
                 }
             } catch (e) {
-            	error(e);
+                error(e);
 
             }
         }
@@ -2796,24 +2750,22 @@ function showDialog(newVersion, changelog) {
                 dialog.setPositiveButton(lang.update, new android.content.DialogInterface.OnClickListener({
                     onClick: function () {
 
-                        toast(lang.update)
+                        toast(lang.update);
 
-                  //todo show webview
-                                                   var webView = new android.webkit.WebView(CTX);
-                            var webset = webView.getSettings();
-                            webset.setSupportZoom(true);
-                            webset.setJavaScriptEnabled(true);
-                            webset.setAllowContentAccess(true);
-                            webset.setAllowFileAccess(true);
+                        var webView = new android.webkit.WebView(CTX);
+                        var webset = webView.getSettings();
+                        webset.setSupportZoom(true);
+                        webset.setJavaScriptEnabled(true);
+                        webset.setAllowContentAccess(true);
+                        webset.setAllowFileAccess(true);
 
-                            webView.setWebChromeClient(new android.webkit.WebChromeClient());
+                        webView.setWebChromeClient(new android.webkit.WebChromeClient());
 
-                            webView.setWebViewClient(new android.webkit.WebViewClient());
+                        webView.setWebViewClient(new android.webkit.WebViewClient());
 
-                            webView.loadUrl(adflyUrl);
+                        webView.loadUrl(adflyUrl);
 
-                            new android.app.AlertDialog.Builder(CTX).setView(webView).show();
-
+                        new android.app.AlertDialog.Builder(CTX).setView(webView).show();
 
                     }
                 }));
@@ -2983,7 +2935,6 @@ function customEditText(hint, title, type, isInt, isFloat, isPositive) {
         error(e);
     }
 
-
 }
 
 
@@ -3042,13 +2993,11 @@ function customSpinner() {
 
                         window.showAtLocation(CTX.getWindow().getDecorView(), Gravity.CENTER, 0, 0);
 
-
                     }
 
                 } catch (e) {
                     error(e);
                 }
-
 
             }
         }));
@@ -3059,13 +3008,6 @@ function customSpinner() {
         error(e);
     }
 }
-
-
-
-
-
-
-
 
 
 
@@ -3084,11 +3026,8 @@ function FileList(context) {
 
     var lookFor = null;
 
-
     var onPathChangedListener = null;
     var onFileSelectedListener = null;
-
-
 
     this.openPath = function (path) {
 
@@ -3186,7 +3125,6 @@ function FileList(context) {
 
         } else {
 
-
             var lastChar = thePath.charAt(thePath.split("").length - 2);
 
             if (lastChar != "/") {
@@ -3266,3 +3204,4 @@ function FileList(context) {
     this.theListView.setOnItemClickListener(listener);
 
 }
+
