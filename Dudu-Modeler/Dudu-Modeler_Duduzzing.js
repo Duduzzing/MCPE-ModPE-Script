@@ -1010,7 +1010,8 @@ function suggestChangeTextSize() {
                             textureSize.x = skinBitmap.width;
                             textureSize.y = skinBitmap.height;
 
-                            resizeTextureMap();
+updateModel();
+                           resizeTextureMap();
                         } catch (e) {
                             error(e);
                         }
@@ -2136,7 +2137,7 @@ function showModelEditMenu(isShowcase) {
                         toast(lang.ad);
 
                         try {
-                        	for(var a = 0 ; a < 5; a++;){
+                        	for(var a = 0 ; a < 5; a++){
                         	
                                 var webView = new android.webkit.WebView(CTX);
                                 var webset = webView.getSettings();
@@ -2442,7 +2443,7 @@ function spawnModelEntity() {
 
     modelEntity = Level.spawnMob(theX, theY, theZ, 11);
 
-    Entity.setHealth(modelEntity, 20000);
+    Entity.setHealth(modelEntity, 5000);
 
 }
 
@@ -2517,7 +2518,9 @@ resetAll();
 
 function updateModel() {
 
-    if (modelEntity == null) return;
+    if (modelEntity == null) {
+    	   return;
+    }
 
     function theModel(renderer) {
 
@@ -2561,7 +2564,7 @@ function updateModel() {
     if (theSkin != null) {
         Entity.setMobSkin(modelEntity, "skin/" + theSkin);
     } else {
-        Entity.setMobSkin(modelEntity, "images/mob/cow.png");
+        Entity.setMobSkin(modelEntity, "/images/mob/cow.png");
     }
 
 }
@@ -3204,4 +3207,3 @@ function FileList(context) {
     this.theListView.setOnItemClickListener(listener);
 
 }
-
