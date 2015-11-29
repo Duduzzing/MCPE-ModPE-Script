@@ -123,7 +123,7 @@ CTX.runOnUiThread(new java.lang.Runnable( {
 				
 				var gridLayout = new GridLayout(CTX);
 				
-				gridLayout.setGravity(Gravity.CENTER);
+				
 				
 				gridLayout.setColumnCount(3);
 				
@@ -267,8 +267,6 @@ dismissStartBtn();
 
 
 }
-
-
 
 
 

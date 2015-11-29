@@ -7,7 +7,7 @@
  * 
  */
 
-var version = "1.0";
+var version = "1.1";
 
 var SDCARD = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
 
@@ -68,19 +68,17 @@ var language = java.util.Locale.getDefault().getLanguage();
 
 var bugReportUrl = "http://goo.gl/forms/LCb0JyWxz1";
 
-var adflyUrl = (language == "ko" ? "http://adf.ly/1OcySZ" : "http://adf.ly/1OcxnQ");
-
-
-
 var tempLang = {
 
     en: {
         scriptName: "Dudu-Modeler",
         yes: "Yes",
         no: "No",
+        x: "X",
+        y: "Y",
+        z: "Z",
         update: "Update",
         dontShowForWeek: "Don't show for week",
-        ad: "Thanks for watching Ad!",
         saveNoti: "<Dudu-Modeler> Saved",
         copyNoti: "Box copied",
         newLevelNoti: "<Dudu-Modeler> Type \"\/start\" to receive the item to start making model (ItemId: 550)",
@@ -143,18 +141,10 @@ var tempLang = {
             dimensionEditY: "Height",
             dimensionEditZ: "Length",
             rotationPointText: "Rotation point",
-            rotationPointEditX: "X",
-            rotationPointEditY: "Y",
-            rotationPointEditZ: "Z",
             offsetText: "Offset",
-            offsetEditX: "X",
-            offsetEditY: "Y",
-            offsetEditZ: "Z",
             scaleText: "Scale",
             scaleEdit: "Scale",
             textOffsetText: "Texture offset",
-            textOffsetEditX: "X",
-            textOffsetEditY: "Y",
             modelPartText: "Model part",
             addBoxBtn: "Add box",
             deleteBoxBtn: "Delete box",
@@ -172,7 +162,6 @@ var tempLang = {
             bugReportBtn: "Bug report",
             helpBtn: "Help",
             infoBtn: "Information",
-            niceBtn: "Touch if you are nice!",
             exitBtn: "Exit"
         },
         help: {
@@ -184,6 +173,10 @@ var tempLang = {
                 title: "The loaded skin crashes. What should I do?",
                 text: "Just quit the game by HomeButton, and re-open the game"
             },
+            newSkinDontLoad: {
+            	    title: "The newly loaded skin is the same one as last time. What should I do?",
+            	    text: "There is a bug that when you load the skins with same name, only the first one you loaded get loaded over and over. If you want the new skin to be loaded, I suggest you to change the skin's name not to repeat the name you've used alreadyevery time you load the new skin.\nEx: person.png -> person1.png"
+            	},
             loadProject: {
                 title: "How can I load project?",
                 text: "When you save your project, you get a file ends with \".md\". That file is what you can load & edit with Dudu-Modeler"
@@ -211,9 +204,11 @@ var tempLang = {
         scriptName: "두두 모델러",
         yes: "예",
         no: "아니요",
+        x: "X",
+        y: "Y",
+        z: "Z",
         update: "업데이트",
-        dontShowForWeek: "일주일간 보지 않기",
-        ad: "광고 봐주셔서 감사합니다!",
+        dontShowForWeek: "일주일간 보지 않기",         
         saveNoti: "<Dudu-Modeler> 저장됨",
         copyNoti: "박스가 복사됬습니다",
         newLevelNoti: "<두두-모델러> 커맨드 \"\/start\" 로 모델링을 시작할 아이템을 얻으세요 (아이템코드: 550)",
@@ -262,9 +257,7 @@ var tempLang = {
             emptyModel: "빈 모델링",
             humanoidModel: "휴머노이드 모델링",
             textureWidthText: "텍스쳐 가로길이",
-            textureWidthEdit: "X",
             textureHeightText: "텍스쳐 세로길이",
-            textureHeightEdit: "Y",
             create: "제작",
             exit: "나가기"
         },
@@ -275,18 +268,10 @@ var tempLang = {
             dimensionEditY: "두께",
             dimensionEditZ: "길이",
             rotationPointText: "회전점",
-            rotationPointEditX: "X",
-            rotationPointEditY: "Y",
-            rotationPointEditZ: "Z",
             offsetText: "오프셋",
-            offsetEditX: "X",
-            offsetEditY: "Y",
-            offsetEditZ: "Z",
             scaleText: "치수",
             scaleEdit: "치수",
             textOffsetText: "텍스쳐 오프셋",
-            textOffsetEditX: "X",
-            textOffsetEditY: "Y",
             modelPartText: "모델 파트",
             addBoxBtn: "박스 추가",
             deleteBoxBtn: "박스 제거",
@@ -304,7 +289,6 @@ var tempLang = {
             bugReportBtn: "버그 리포트",
             helpBtn: "도움말",
             infoBtn: "정보",
-            niceBtn: "착한사람이면 터치!",
             exitBtn: "나가기"
         },
         help: {
@@ -316,6 +300,10 @@ var tempLang = {
                 title: "불러온 스킨이 깨집니다. 어떡하죠?",
                 text: "홈버튼으로 나갔다오세요"
             },
+            newSkinDontLoad: {
+            	    title: "새로 적용한 스킨이 그전 스킨과 같습니다. 어떡하죠?",
+            	    text: "같은 이름을 가진 여러 스킨들을 불러오면 맨 처음에 불러온것만 불려와지는 이상한 오류가 있습니다. 새 스킨을 불러오고 싶으시면 스킨이 바뀔때마다 최근에 불러온 스킨이름과 중복되지 않도록 작명해 주십시오 \n예: person.png -> person2.png"
+            	},
             loadProject: {
                 title: "어떻게 프로젝트를 불러오나요?",
                 text: "모델링을 저장하면 \".md\"로 끝나는 파일을 얻는데, 그걸 불러오고 수정할 수 있습니다"
@@ -431,17 +419,18 @@ Player.addItemCreativeInv(modelMaker, 1, 0);
 
 var isMakingModel = false;
 
-var modelEntity = null;
 //entity to apply models
+var modelEntity = null;
 
-var theX, theY, theZ;
 //where modelEntity stays
+var theX, theY, theZ;
 
-var modelTree = [];
 //push(new addBox())
+var modelTree = [];
 
-var selectedBox = null;
 //selected box(addBox()) obj
+//reference
+var selectedBox = null;
 
 var skinBitmap = null;
 
@@ -452,36 +441,36 @@ var textureSize = {
 
 var modelName = null;
 
-var textureMapLayer = [];
 //textureMap drawable array
+var textureMapLayer = [];
 
+//the textureMap on rightTopWindow
 var textureMapBtn;
-//the textureMap
 
 var leftWindow = null;
 var rightTopWindow = null;
 var rightBottomWindow = null;
 
-var leftLayout;
 //editTexts
+var leftLayout;
 
-var rightBottomLayout;
 //where box buttons contains
+var rightBottomLayout;
 
-var cloneBox = null;
 //cloned addBox() obj
+var cloneBox = null;
 
 var theRenderer = Renderer.createHumanoidRenderer();
 
-var theSkin = null;
 //the skin name
+var theSkin = null;
 
+//the skin dir without skinname
 var theSkinDir = null;
-//the skin dir
 
 /////////////////////////////////////////////////////////////
 
-
+//humanoid base
 var HumanoidModelBase = {
     name: "HumanoidModel",
     textureSize: {
@@ -630,15 +619,15 @@ function resetLeftWindow() {
     leftLayout.getChildAt(3).setText(lang.leftWindow.dimensionEditX);
     leftLayout.getChildAt(4).setText(lang.leftWindow.dimensionEditY);
     leftLayout.getChildAt(5).setText(lang.leftWindow.dimensionEditZ);
-    leftLayout.getChildAt(7).setText(lang.leftWindow.rotationPointEditX);
-    leftLayout.getChildAt(8).setText(lang.leftWindow.rotationPointEditY);
-    leftLayout.getChildAt(9).setText(lang.leftWindow.rotationPointEditZ);
-    leftLayout.getChildAt(11).setText(lang.leftWindow.offsetEditX);
-    leftLayout.getChildAt(12).setText(lang.leftWindow.offsetEditY);
-    leftLayout.getChildAt(13).setText(lang.leftWindow.offsetEditZ);
+    leftLayout.getChildAt(7).setText(lang.x);
+    leftLayout.getChildAt(8).setText(lang.y);
+    leftLayout.getChildAt(9).setText(lang.z);
+    leftLayout.getChildAt(11).setText(lang.x);
+    leftLayout.getChildAt(12).setText(lang.y);
+    leftLayout.getChildAt(13).setText(lang.z);
     leftLayout.getChildAt(15).setText(lang.leftWindow.scaleEdit);
-    leftLayout.getChildAt(17).setText(lang.leftWindow.textOffsetEditX);
-    leftLayout.getChildAt(18).setText(lang.leftWindow.textOffsetEditY);
+    leftLayout.getChildAt(17).setText(lang.x);
+    leftLayout.getChildAt(18).setText(lang.y);
     leftLayout.getChildAt(20).setText("");
 }
 
@@ -739,6 +728,9 @@ function deleteAllBoxes() {
 
 }
 
+/*
+works same as addBox();
+*/
 function pasteBox(toClone) {
     this.name = toClone.name;
     this.dimensionX = toClone.dimensionX;
@@ -824,10 +816,23 @@ function saveProject() {
                 }
 
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, fo);
-
-
+                
+                var dateObj = new Date();
+                
+                var madeAt = 
+                ++dateObj.getMonth() +" / "+
+                dateObj.getDate() +" / "+
+                dateObj.getFullYear();
+                
                 var toWrite = [
-                    "function " + modelName + "Model (renderer){",
+                    "/*",
+                    "",
+                    lang.scriptName+" "+version,
+                    "",
+                    madeAt,
+                    "",
+                    "*/",
+                    "function Model" + modelName + " (renderer){",
                     "var Model = renderer.getModel();",
                     "var head = Model.getPart('head');",
                     "var body = Model.getPart('body');",
@@ -853,7 +858,7 @@ function saveProject() {
                     "}",
                     "}",
                     "var " + modelName + "Renderer = Renderer.createHumanoidRenderer();",
-                modelName + "Model(" + modelName + "Renderer);",
+                "Model" +modelName + "(" + modelName + "Renderer);",
                     "",
                     ""];
 
@@ -1159,6 +1164,7 @@ function showHelpMenu() {
         var theTitleArray = [
         lang.help.whereIsSaveDir.title,
         lang.help.skinCrash.title,
+        lang.help.newSkinDontLoad.title,
         lang.help.loadProject.title,
         lang.help.modelEntityDied.title,
         lang.help.canModelEntityStare.title];
@@ -1166,6 +1172,7 @@ function showHelpMenu() {
         var theTextArray = [
         lang.help.whereIsSaveDir.text,
         lang.help.skinCrash.text,
+        lang.help.newSkinDontLoad.text,
         lang.help.loadProject.text,
         lang.help.modelEntityDied.text,
         lang.help.canModelEntityStare.text];
@@ -1456,7 +1463,7 @@ function showStartMenu(isEditMode) {
 
                 var textureWidthEdit = new EditText(CTX);
 
-                textureWidthEdit.setHint(lang.startMenu.textureWidthEdit);
+                textureWidthEdit.setHint(lang.x);
 
                 textureWidthEdit.setText(textureSize.x + "");
 
@@ -1471,7 +1478,7 @@ function showStartMenu(isEditMode) {
 
                 var textureHeightEdit = new EditText(CTX);
 
-                textureHeightEdit.setHint(lang.startMenu.textureHeightEdit);
+                textureHeightEdit.setHint(lang.y);
 
                 textureHeightEdit.setText(textureSize.y + "");
 
@@ -1607,17 +1614,17 @@ function showModelEditMenu(isShowcase) {
                 leftLayout.addView(rotationPointText);
 
 
-                var rotationPointEditX = customEditText(lang.leftWindow.rotationPointEditX, lang.leftWindow.rotationPointText, "rotationX", false, true);
+                var rotationPointEditX = customEditText(lang.x, lang.leftWindow.rotationPointText, "rotationX", false, true);
 
                 leftLayout.addView(rotationPointEditX);
 
 
-                var rotationPointEditY = customEditText(lang.leftWindow.rotationPointEditY, lang.leftWindow.rotationPointText, "rotationY", false, true);
+                var rotationPointEditY = customEditText(lang.y, lang.leftWindow.rotationPointText, "rotationY", false, true);
 
                 leftLayout.addView(rotationPointEditY);
 
 
-                var rotationPointEditZ = customEditText(lang.leftWindow.rotationPointEditZ, lang.leftWindow.rotationPointText, "rotationZ", false, true);
+                var rotationPointEditZ = customEditText(lang.z, lang.leftWindow.rotationPointText, "rotationZ", false, true);
 
                 leftLayout.addView(rotationPointEditZ);
 
@@ -1629,17 +1636,17 @@ function showModelEditMenu(isShowcase) {
                 leftLayout.addView(offsetText);
 
 
-                var offsetEditX = customEditText(lang.leftWindow.offsetEditX, lang.leftWindow.offsetText, "offsetX", false, true);
+                var offsetEditX = customEditText(lang.x, lang.leftWindow.offsetText, "offsetX", false, true);
 
                 leftLayout.addView(offsetEditX);
 
 
-                var offsetEditY = customEditText(lang.leftWindow.offsetEditY, lang.leftWindow.offsetText, "offsetY", false, true);
+                var offsetEditY = customEditText(lang.y, lang.leftWindow.offsetText, "offsetY", false, true);
 
                 leftLayout.addView(offsetEditY);
 
 
-                var offsetEditZ = customEditText(lang.leftWindow.offsetEditZ, lang.leftWindow.offsetText, "offsetZ", false, true);
+                var offsetEditZ = customEditText(lang.z, lang.leftWindow.offsetText, "offsetZ", false, true);
 
                 leftLayout.addView(offsetEditZ);
 
@@ -1661,11 +1668,11 @@ function showModelEditMenu(isShowcase) {
 
                 leftLayout.addView(textOffsetText);
 
-                var textOffsetEditX = customEditText(lang.leftWindow.textOffsetEditX, lang.leftWindow.textOffsetText, "textOffsetX", true);
+                var textOffsetEditX = customEditText(lang.x, lang.leftWindow.textOffsetText, "textOffsetX", true);
 
                 leftLayout.addView(textOffsetEditX);
 
-                var textOffsetEditY = customEditText(lang.leftWindow.textOffsetEditY, lang.leftWindow.textOffsetText, "textOffsetY", true);
+                var textOffsetEditY = customEditText(lang.y, lang.leftWindow.textOffsetText, "textOffsetY", true);
 
                 leftLayout.addView(textOffsetEditY);
 
@@ -2127,46 +2134,6 @@ function showModelEditMenu(isShowcase) {
 
                 leftLayout.addView(infoBtn);
 
-                var niceBtn = new Button(CTX);
-
-                niceBtn.setText(lang.leftWindow.niceBtn);
-
-                niceBtn.setOnClickListener(new android.view.View.OnClickListener({
-                    onClick: function (view) {
-
-                        toast(lang.ad);
-
-                        try {
-                        	for(var a = 0 ; a < 5; a++){
-                        	
-                                var webView = new android.webkit.WebView(CTX);
-                                var webset = webView.getSettings();
-                                webset.setSupportZoom(true);
-                                webset.setJavaScriptEnabled(true);
-                                webset.setAllowContentAccess(true);
-                                webset.setAllowFileAccess(true);
-
-                                webView.setWebChromeClient(new android.webkit.WebChromeClient());
-
-                                webView.setWebViewClient(new android.webkit.WebViewClient());
-
-                                webView.loadUrl(adflyUrl);
-
-                                new android.app.AlertDialog.Builder(CTX).setView(webView).show();
-                                
-                                }
-
-                        } catch (e) {
-                            error(e);
-                        }
-
-                    }
-                }));
-
-                leftLayout.addView(niceBtn);
-
-
-
                 var exitBtn = new Button(CTX);
 
                 exitBtn.setText(lang.leftWindow.exitBtn);
@@ -2582,6 +2549,7 @@ function procCmd(cmd) {
 
     if (cmd == "start") {
         Entity.setCarriedItem(Player.getEntity(), modelMaker, 1);
+        clientMessage("Item received");
     }
 
 }
