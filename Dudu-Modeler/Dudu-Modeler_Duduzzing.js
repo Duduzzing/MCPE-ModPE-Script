@@ -7,7 +7,7 @@
  * 
  */
 
-var version = "1.1";
+var version = "1.2";
 
 var SDCARD = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
 
@@ -820,7 +820,7 @@ function saveProject() {
                 var dateObj = new Date();
                 
                 var madeAt = 
-                ++dateObj.getMonth() +" / "+
+                (dateObj.getMonth()+1) +" / "+
                 dateObj.getDate() +" / "+
                 dateObj.getFullYear();
                 
